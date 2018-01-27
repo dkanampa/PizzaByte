@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "EPizzaTopping.h"
+#include "../Environment/FDistrict.h"
 #include "PizzaNode.generated.h"
 
 UCLASS()
@@ -14,6 +15,8 @@ class GAMEJAM2018_VGDC_API APizzaNode : public AActor
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		EPizzaTopping Topping;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FDistrict* ParentDistrict;
 
 public:
 	// Sets default values for this actor's properties

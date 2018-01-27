@@ -49,6 +49,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TMap<EPizzaTopping, float> ToppingPreferences;
 
+	// The flat property rate for nodes in this district
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		float PropertyRate;
+
 private:
 	// etc..
 

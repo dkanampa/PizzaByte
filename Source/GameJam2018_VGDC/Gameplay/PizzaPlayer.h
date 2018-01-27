@@ -35,4 +35,6 @@ public:
 	bool PurchaseDistrictPermit(FDistrict* District);
 	bool PursueOrder(FOrder& Order, TArray<APizzaNode*> PizzaNodes);
 	bool hasBoughtSectorPermit(FDistrict* District);
+	int32 GetOwnedNodesSizeInDistrict(FDistrict* District);
+	bool PurchaseTowerWithFunds(FBlock* ToPurchase);
 };
