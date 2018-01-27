@@ -4,6 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Environment/FDistrict.h"
+#include "Environment/FSector.h"
+#include "PizzaNode.h"
+#include "FOrder.h"
+#include "../Environment/FSector.h"
+#include "../Environment/FBlock.h"
 #include "PizzaPlayer.generated.h"
 
 UCLASS()
@@ -14,11 +20,21 @@ class GAMEJAM2018_VGDC_API APizzaPlayer : public APawn
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	APizzaPlayer();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	bool PurchaseTowerInSector(FSector* Sector, FBlock* ToPurchase, EPizzaTopping Topping);
+	bool PurchaseDistrictPermit(FDistrict* District);
+	bool PursueOrder(FOrder& Order, TArray<APizzaNode*> PizzaNodes);
+	bool hasBoughtSectorPermit(FDistrict* District);
 
-	
-	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		int32 Funds;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		TArray<APizzaNode*> Nodes;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		TArray<FDistrict> PermittedDistricts;
 };
