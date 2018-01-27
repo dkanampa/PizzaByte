@@ -1,7 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "FBlock.h"
-#include "../Gameplay/FPizzaNode.h"
+#include "../Gameplay/PizzaNode.h"
 #include "FSector.generated.h" 
 
 struct FDistrict; // Forward declare to avoid circular includes
@@ -20,8 +20,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<FBlock> Blocks;
 
-	// Pointer means we can have it null indicating no tower present
-	FPizzaNode* OccupyingNode;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool HasPizzaNode;
 
 	FDistrict* ParentDistrict;
 
