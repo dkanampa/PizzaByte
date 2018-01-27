@@ -15,6 +15,11 @@ class GAMEJAM2018_VGDC_API APizzaGameState : public AGameStateBase
 	GENERATED_BODY()
 	
 	
-	
+protected:
+	virtual void BeginPlay() override;
+
+public:
+	APizzaGameState();
+	virtual void Tick(float DeltaTime) override;
 	
 };
