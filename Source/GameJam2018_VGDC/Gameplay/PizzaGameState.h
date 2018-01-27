@@ -23,24 +23,45 @@ protected:
 public:
 	APizzaGameState();
 	virtual void Tick(float DeltaTime) override;
-	
+
+	// Handles minute/day/month incrementation
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		void UpdateGameTime(float DeltaTime);
+
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		bool IsWeekend();
+
+	// Bills players for upkeep
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		void OnNewMonth();	
+
 	// In minutes; loops back to 0 at 1440.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
 		META = (ClampMin = 0.0f, ClampMax = 1440.0f))
 		float TimeOfDay = 720.0f;
 
+	// Days in the week have no names, just numbers (starting from 1!)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
+		META = (ClampMin = 1))
+		uint8 Day = 1;
+
+	// Week of this month, starting at 1
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
+		META = (ClampMin = 1))
+		uint8 Week = 1;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
+		META = (ClampMin = 1))
+		uint8 Month = 1;
+
 	// How many in-game minutes pass per real-life second
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
-		META = (ClampMin = 0.1f, ClampMax = 20.0f))
+		META = (ClampMin = 0.1f, UIMax = 20.0f))
 		float TimeSpeed = 2.0f;
-
-	// Days in the week have no names, just numbers
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time")
-		uint8 DayOfWeek = 0;
 
 	// Number of non-weekend days per week
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
-		META = (UIMax = 10))
+		META = (ClampMin = 1, UIMax = 10))
 		uint8 WeekDays = 3;
 
 	// Number of weekend days per week
@@ -53,6 +74,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
 		META = (UIMax = 10))
 		uint8 WeeksPerMonth = 2;
+
+	// Dictates seasonal variations in frequency orders that might just be a
+	//   stretch goal
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
+		META = (UIMax = 52))
+		uint8 MonthsPerYear = 4;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
 		TArray<FOrder> OpenOrders;
