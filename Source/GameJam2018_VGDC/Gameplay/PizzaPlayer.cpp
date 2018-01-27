@@ -54,7 +54,7 @@ bool APizzaPlayer::PurchaseTowerInSector(FSector * Sector)
 }
 
 bool APizzaPlayer::PursueOrder(FOrder& Order) {
-	// TODO
+	return false;
 }
 
 // Returns if this player owns a certain district's permit

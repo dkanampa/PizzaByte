@@ -50,8 +50,8 @@ void APizzaGameState::UpdateGameTime(float DeltaTime)
 		TimeOfDay = 1440.0f - TimeOfDay;
 		Day++;
 
-		UE_LOG(LogTemp, Log, TEXT("The date is now %02d/%02d/%02d/%04d (DD/WW/MM/YYYY)"),
-			Day, Week, Month, Year);
+		UE_LOG(LogTemp, Log, TEXT("The date is now %s"),
+			*GetTimestamp(false));
 		UE_LOG(LogTemp, Log, TEXT("It %s the weekend"),
 			IsWeekend() ? TEXT("is") : TEXT("is not"));
 	}
@@ -145,7 +145,46 @@ void APizzaGameState::OnNewMonth()
 	// TODO: Bill player
 }
 
+FString APizzaGameState::GetTimestamp(bool IncludeTimeOfDay)
+{
+	if(IncludeTimeOfDay)
+		return FString::Printf(TEXT("%.2f:%02d/%02d/%02d/%04d"), TimeOfDay, Day, Week, Month, Year);
+	else
+		return FString::Printf(TEXT("%02d/%02d/%02d/%04d"), Day, Week, Month, Year);
+}
+
 void APizzaGameState::GenerateNewOrders()
 {
+	for (FDistrict& District : Districts)
+	{
+		/** Get District Frequency Curve for the current day */
+		UCurveFloat* FreqCurve = nullptr;
+		
+		if (IsWeekend())
+			FreqCurve = *OrderFrequencyWeekends.Find(District.Type);
+		else
+			FreqCurve = *OrderFrequencyWeekdays.Find(District.Type);
 
+		if (FreqCurve == nullptr)
+		{
+			FreqCurve = OrderFrequencyFallback;
+
+			UE_LOG(LogTemp, Error, TEXT("District Type %d does not have a order frequency! Using Fallback."));
+			UE_LOG(LogTemp, Error, TEXT("IsWeekend: %s"), IsWeekend() ? TEXT("true") : TEXT("false"));
+
+			if (OrderFrequencyFallback == nullptr)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Bollocks! We can't even use a fallback because you didn't provide it!"));
+				UE_LOG(LogTemp, Error, TEXT("Skipping District!"));
+				continue;
+			}
+		}
+
+		float OrderLikelihood = OrderFrequencyMultiplier * FreqCurve->GetFloatValue(TimeOfDay);
+
+		UE_LOG(LogTemp, Log, TEXT("Likelihood of an order being placed at %s: %.4f"),
+			*GetTimestamp(), OrderLikelihood);
+		UE_LOG(LogTemp, Log, TEXT("\t(calculation: FreqMod (%.4f) * Curve (%.4f), given curve %s"),
+			OrderFrequencyMultiplier, FreqCurve->GetFloatValue(TimeOfDay), *FreqCurve->GetName());
+	}
 }

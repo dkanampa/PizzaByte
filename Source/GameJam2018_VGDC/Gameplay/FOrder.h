@@ -1,7 +1,8 @@
 #pragma once
 #include "CoreMinimal.h"
-#include "FOrder.generated.h"
 #include "Environment/FBlock.h"
+#include "EPizzaTopping.h"
+#include "FOrder.generated.h"
 
 USTRUCT(BlueprintType)
 struct FOrder
