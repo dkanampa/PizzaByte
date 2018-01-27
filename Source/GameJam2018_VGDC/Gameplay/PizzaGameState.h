@@ -6,6 +6,7 @@
 #include "../Environment/FDistrict.h"
 #include "FOrder.h"
 #include "GameFramework/GameStateBase.h"
+#include "Runtime/Engine/Classes/Engine/DirectionalLight.h"
 #include "PizzaGameState.generated.h"
 
 UENUM(BlueprintType)
@@ -92,29 +93,29 @@ public:
 		int32 Year = 1;
 
 	// How many in-game minutes pass per real-life second
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time|Parameters",
 		META = (ClampMin = 0.1f, UIMax = 20.0f))
 		float TimeSpeed = 5.0f;
 
 	// Number of non-weekend days per week
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time|Parameters",
 		META = (ClampMin = 1, UIMax = 10))
 		uint8 WeekDays = 3;
 
 	// Number of weekend days per week
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time|Parameters",
 		META = (UIMax = 10))
 		uint8 WeekendDays = 2;
 
 	// Number of weeks (non-weekend days + weekend days) per month
 	// Billing happens every month
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time|Parameters",
 		META = (UIMax = 10))
 		uint8 WeeksPerMonth = 2;
 
 	// Dictates seasonal variations in frequency orders that might just be a
 	//   stretch goal
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time|Parameters",
 		META = (UIMax = 18))
 		uint8 MonthsPerYear = 8;
 
@@ -123,16 +124,15 @@ public:
 	//   and <Noon, 720> means morning will end at 720 exactly and Noon
 	//   will start then
 	// Make sure it's in order!
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time|Parameters")
 		TMap<EPeriodOfDay, float> PeriodOfDayTimes;
 
 	// Map of season : first month (inclusive) of that season
 	// E.g. {Spring:0 , Summer:4} Spring will end and summer will begin when 
 	//   month 4 starts (at midnight)
 	// Make sure it's in order!
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time|Parameters")
 		TMap<ESeason, uint8> Seasons;
-
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
 		TArray<FOrder> OpenOrders;
@@ -149,4 +149,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
 		TMap<EDistrictType, UCurveFloat*> OrderFrequencyWeekends;
 
+	// Scans for one at the beginning of the game; or will, eventually..
+	// TODO: Move sun across the sky
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Environment")
+		ADirectionalLight* SunLight;
 };
