@@ -14,8 +14,15 @@ struct FOrder
 	FOrder(EPizzaTopping _PizzaType, FBlock& _Block, float _TimePlaced, float _ExpireTime)
 		:PizzaType(_PizzaType), Block(_Block), TimePlaced(_TimePlaced), ExpireTime(_ExpireTime) {};
 
-	EPizzaTopping PizzaType;
-	FBlock Block;
-	float TimePlaced;
-	float ExpireTime;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		EPizzaTopping PizzaType;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		FBlock Block;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		float TimePlaced;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		float ExpireTime;
 };
