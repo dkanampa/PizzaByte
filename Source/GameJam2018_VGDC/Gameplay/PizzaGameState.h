@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "PizzaPlayer.h"
 #include "../Environment/FDistrict.h"
 #include "FOrder.h"
+
 #include "GameFramework/GameStateBase.h"
 #include "Runtime/Engine/Classes/Engine/DirectionalLight.h"
 #include "PizzaGameState.generated.h"
@@ -68,6 +71,10 @@ public:
 	// Assume's Seasons map is sorted
 	UFUNCTION(BlueprintCallable, Category = "Time")
 		ESeason GetSeason();
+
+	// Called every hour; may no orders or a bunch, depending on the will of RNGesus
+	UFUNCTION(BlueprintCallable, Category = "Orders")
+		void GenerateNewOrders();
 
 	// In minutes; loops back to 0 at 1440.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
@@ -148,6 +155,16 @@ public:
 	// Access curve value via GetFloatValue(x)
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
 		TMap<EDistrictType, UCurveFloat*> OrderFrequencyWeekends;
+
+	// All players in the game; automatically queried for at the start of the 
+	//   game
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Environment")
+		TArray<APizzaPlayer*> Players;
+
+	// All districts in the map; should be provided 
+	// REMEMBER FOR GOD'S SAKE TO PASS BY REFERENCE!!!!!!!!!!
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Environment")
+		TArray<FDistrict> Districts;
 
 	// Scans for one at the beginning of the game; or will, eventually..
 	// TODO: Move sun across the sky

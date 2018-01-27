@@ -31,6 +31,8 @@ void APizzaGameState::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateGameTime(DeltaTime);
+
+	GenerateNewOrders();
 }
 
 void APizzaGameState::UpdateGameTime(float DeltaTime)
@@ -141,4 +143,9 @@ ESeason APizzaGameState::GetSeason()
 void APizzaGameState::OnNewMonth()
 {
 	// TODO: Bill player
+}
+
+void APizzaGameState::GenerateNewOrders()
+{
+
 }
