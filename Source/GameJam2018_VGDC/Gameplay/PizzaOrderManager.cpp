@@ -23,12 +23,12 @@ void APizzaOrderManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!GameState)
+	if (GameState == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OrderManager has no APizzaGameState! Searching..."));
 		GameState = Cast<APizzaGameState>(GetWorld()->GetGameState());
 
-		if (!GameState)
+		if (GameState == nullptr)
 		{
 			UE_LOG(LogTemp, Error, TEXT("OrderManager relies on the APizzaGameState, but none found!"));
 			return;
@@ -40,6 +40,19 @@ void APizzaOrderManager::Tick(float DeltaTime)
 		UE_LOG(LogTemp, Log, TEXT("Recalculating orders..."));
 		GenerateNewOrders();
 		LastOrderGenerationCall = GameState->TimeOfDay;
+	}
+
+	// Expire old orders
+	for (int i = 0; i < OpenOrders.Num(); i++)
+	{
+		if (OpenOrders[i].ExpireTime < GameState->TimeOfDay)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Expiring Order for %s pizza"),
+				*UsefulFunctions::EnumToString(FString("EPizzaTopping"), OpenOrders[i].PizzaType));
+
+			OpenOrders.RemoveAt(i);
+			i--;
+		}
 	}
 		
 }
@@ -56,15 +69,7 @@ void APizzaOrderManager::GenerateNewOrders()
 			UE_LOG(LogTemp, Log, TEXT("Placing order in District %s..."), 
 				*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type));
 
-
-			// TODO: The array ends up having "None" elements, so I suspect the game state
-			//   is messing with things. Move this to an actor.
-			FOrder SpawnedOrder = GenerateOrder(District);
-
-			UE_LOG(LogTemp, Log, TEXT("Adding order (%d) to array..."),
-				(uint8)SpawnedOrder.PizzaType);
-
-			OpenOrders.Add(SpawnedOrder);
+			OpenOrders.Add(GenerateOrder(District));
 		}
 	}
 }
@@ -142,7 +147,7 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 	/** Choose Expirey Time */
 	float ExpireDuration = RNG.FRandRange(ExpireTimeMinMax.X, ExpireTimeMinMax.Y);
 
-	UE_LOG(LogTemp, Log, TEXT("Spawning an order for a %s Pizza in district %s, expiring in %.0f minutes (at time %7.2f)"), 
+	UE_LOG(LogTemp, Log, TEXT("Spawning an order for a %s Pizza in district %s, expiring in %.0f minutes (at time %.2f)"), 
 		*UsefulFunctions::EnumToString(FString("EPizzaTopping"), ChosenTopping),
 		*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type),
 		ExpireDuration, GameState->TimeOfDay + ExpireDuration);
