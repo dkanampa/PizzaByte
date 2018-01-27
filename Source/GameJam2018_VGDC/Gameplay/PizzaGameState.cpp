@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PizzaGameState.h"
-
+#include "../GenericUsefulFunctions.h"
 
 
 APizzaGameState::APizzaGameState()
@@ -24,6 +24,7 @@ void APizzaGameState::BeginPlay()
 {
 	Super::BeginPlay();
 
+	RNG = FRandomStream(Seed);
 }
 
 void APizzaGameState::Tick(float DeltaTime)
@@ -32,7 +33,13 @@ void APizzaGameState::Tick(float DeltaTime)
 
 	UpdateGameTime(DeltaTime);
 
-	GenerateNewOrders();
+	if (LastOrderGenerationCall + OrderGenerationFrequency <= TimeOfDay)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Recalculating orders..."));
+		GenerateNewOrders();
+		LastOrderGenerationCall = TimeOfDay;
+	}
+		
 }
 
 void APizzaGameState::UpdateGameTime(float DeltaTime)
@@ -65,18 +72,8 @@ void APizzaGameState::UpdateGameTime(float DeltaTime)
 
 		if (TickPreviousSeason != GetSeason())
 		{
-			FString Season = FString("UNDEFINED! AAAH!");
-			if (GetSeason() == ESeason::Spring)
-				Season = FString("Spring");
-			if (GetSeason() == ESeason::Summer)
-				Season = FString("Summer");
-			if (GetSeason() == ESeason::Fall)
-				Season = FString("Fall");
-			else if (GetSeason() == ESeason::Winter)
-				Season = FString("Winter");
-
 			UE_LOG(LogTemp, Log, TEXT("Welcome to a new season: %s!"), 
-				*Season);
+				*UsefulFunctions::EnumToString(FString("ESEason"), GetSeason()));
 			TickPreviousSeason = GetSeason();
 		}
 	}
@@ -148,43 +145,113 @@ void APizzaGameState::OnNewMonth()
 FString APizzaGameState::GetTimestamp(bool IncludeTimeOfDay)
 {
 	if(IncludeTimeOfDay)
-		return FString::Printf(TEXT("%.2f:%02d/%02d/%02d/%04d"), TimeOfDay, Day, Week, Month, Year);
+		return FString::Printf(TEXT("%07.2f:%02d/%02d/%02d/%04d"), TimeOfDay, Day, Week, Month, Year);
 	else
 		return FString::Printf(TEXT("%02d/%02d/%02d/%04d"), Day, Week, Month, Year);
 }
 
 void APizzaGameState::GenerateNewOrders()
 {
+	// TODO: Only query districts that player's have towers in
 	for (FDistrict& District : Districts)
 	{
-		/** Get District Frequency Curve for the current day */
-		UCurveFloat* FreqCurve = nullptr;
-		
-		if (IsWeekend())
-			FreqCurve = *OrderFrequencyWeekends.Find(District.Type);
-		else
-			FreqCurve = *OrderFrequencyWeekdays.Find(District.Type);
+		float OrderLikelihood = CalculateOrderLikelihood(District);
 
-		if (FreqCurve == nullptr)
+		if (RNG.FRand() < OrderLikelihood)
 		{
-			FreqCurve = OrderFrequencyFallback;
+			UE_LOG(LogTemp, Log, TEXT("Placing order in District %s..."), 
+				*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type));
 
-			UE_LOG(LogTemp, Error, TEXT("District Type %d does not have a order frequency! Using Fallback."));
-			UE_LOG(LogTemp, Error, TEXT("IsWeekend: %s"), IsWeekend() ? TEXT("true") : TEXT("false"));
 
-			if (OrderFrequencyFallback == nullptr)
-			{
-				UE_LOG(LogTemp, Error, TEXT("Bollocks! We can't even use a fallback because you didn't provide it!"));
-				UE_LOG(LogTemp, Error, TEXT("Skipping District!"));
-				continue;
-			}
+			// TODO: The array ends up having "None" elements, so I suspect the game state
+			//   is messing with things. Move this to an actor.
+			FOrder SpawnedOrder = GenerateOrder(District);
+
+			UE_LOG(LogTemp, Log, TEXT("Adding order (%d) to array..."),
+				(uint8)SpawnedOrder.PizzaType);
+
+			OpenOrders.Add(SpawnedOrder);
 		}
-
-		float OrderLikelihood = OrderFrequencyMultiplier * FreqCurve->GetFloatValue(TimeOfDay);
-
-		UE_LOG(LogTemp, Log, TEXT("Likelihood of an order being placed at %s: %.4f"),
-			*GetTimestamp(), OrderLikelihood);
-		UE_LOG(LogTemp, Log, TEXT("\t(calculation: FreqMod (%.4f) * Curve (%.4f), given curve %s"),
-			OrderFrequencyMultiplier, FreqCurve->GetFloatValue(TimeOfDay), *FreqCurve->GetName());
 	}
+}
+
+float APizzaGameState::CalculateOrderLikelihood(const FDistrict& District)
+{
+	/** Get District Frequency Curve for the current day */
+	UCurveFloat* FreqCurve = nullptr;
+
+	if (IsWeekend())
+	{
+		if (OrderFrequencyWeekends.Find(District.Type) != nullptr)
+		{
+			FreqCurve = *OrderFrequencyWeekends.Find(District.Type);
+		}
+	}
+	else
+	{
+		if (OrderFrequencyWeekends.Find(District.Type) != nullptr)
+		{
+			FreqCurve = *OrderFrequencyWeekends.Find(District.Type);
+		}
+	}
+
+	if (FreqCurve == nullptr)
+	{
+		FreqCurve = OrderFrequencyFallback;
+
+		UE_LOG(LogTemp, Error, TEXT("District Type %s does not have a order frequency! Using Fallback."),
+			*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type));
+		UE_LOG(LogTemp, Error, TEXT("IsWeekend: %s"), IsWeekend() ? TEXT("true") : TEXT("false"));
+
+		if (OrderFrequencyFallback == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Bollocks! We can't even use a fallback because you didn't provide it!"));
+			UE_LOG(LogTemp, Error, TEXT("Skipping District!"));
+			return -1.0f;
+		}
+	}
+
+	/** Calculate Likelihood */
+	float OrderLikelihood = OrderFrequencyMultiplier * FreqCurve->GetFloatValue(TimeOfDay);
+
+	UE_LOG(LogTemp, Log, TEXT("Likelihood of an order being placed in a %s district at %s: %.4f"),
+		*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type),
+		*GetTimestamp(), OrderLikelihood);
+	UE_LOG(LogTemp, Log, TEXT("\t(calculation: FreqMod (%.4f) * Curve (%.4f), given curve %s)"),
+		OrderFrequencyMultiplier, FreqCurve->GetFloatValue(TimeOfDay), *FreqCurve->GetName());
+
+	return OrderLikelihood;
+}
+
+FOrder APizzaGameState::GenerateOrder(const FDistrict& District)
+{
+	/** Choose a topping */
+	EPizzaTopping ChosenTopping;
+
+	// Chooses the topping using the district's likelihoods, assuming they add
+	//   up to 1.0
+	// May or may not work; no time to explain, it's a game jam!
+	float RandomNumber = RNG.FRand();
+	float PreviousChancesSum = 0.0f;
+	for (auto& Elem : District.ToppingPreferences)
+	{
+		if (RandomNumber < PreviousChancesSum + Elem.Value)
+			ChosenTopping = Elem.Key;
+		else
+			PreviousChancesSum += Elem.Value;
+	}
+
+	/** Choose a sector and block */
+	FSector ChosenSector = UsefulFunctions::RandomElementInArray(District.Sectors, &RNG);
+	FBlock ChosenBlock = UsefulFunctions::RandomElementInArray(ChosenSector.Blocks, &RNG);
+
+	/** Choose Expirey Time */
+	float ExpireDuration = RNG.FRandRange(ExpireTimeMinMax.X, ExpireTimeMinMax.Y);
+
+	UE_LOG(LogTemp, Log, TEXT("Spawning an order for a %s Pizza in district %s, expiring in %.0f minutes (at time %7.2f)"), 
+		*UsefulFunctions::EnumToString(FString("EPizzaTopping"), ChosenTopping),
+		*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type),
+		ExpireDuration, TimeOfDay + ExpireDuration);
+
+	return FOrder(ChosenTopping, ChosenBlock, TimeOfDay, TimeOfDay + ExpireDuration);
 }
