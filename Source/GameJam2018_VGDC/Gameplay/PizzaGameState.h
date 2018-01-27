@@ -72,6 +72,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Time")
 		ESeason GetSeason();
 
+	// Mainly for debugging
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		FString GetTimestamp(bool IncludeTimeOfDay = true);
+
 	// Called every hour; may no orders or a bunch, depending on the will of RNGesus
 	UFUNCTION(BlueprintCallable, Category = "Orders")
 		void GenerateNewOrders();
@@ -143,6 +147,16 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
 		TArray<FOrder> OpenOrders;
+
+	// Tweaking this can increase/decrease likelihood of order placement.
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders",
+		META = (ClampMin = 0.0f, UIMax = 2.0f))
+		float OrderFrequencyMultiplier = 1.0f;
+
+	// In case a district has no OrderFrequency curve below, fall back on this
+	//   one. Note, this should be temporary, as I'll spam some error messages.
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
+		UCurveFloat* OrderFrequencyFallback;
 
 	// How likely it is [0-1] that this type of district will order a pizza at
 	//   this time of day, specifically on weekdays
