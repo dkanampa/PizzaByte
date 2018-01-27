@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PizzaGameState.h"
-
+#include "../GenericUsefulFunctions.h"
 
 
 APizzaGameState::APizzaGameState()
@@ -32,7 +32,8 @@ void APizzaGameState::Tick(float DeltaTime)
 
 	UpdateGameTime(DeltaTime);
 
-	GenerateNewOrders();
+	if(LastOrderGenerationCall + OrderGenerationFrequency <= TimeOfDay)
+		GenerateNewOrders();
 }
 
 void APizzaGameState::UpdateGameTime(float DeltaTime)
@@ -65,18 +66,8 @@ void APizzaGameState::UpdateGameTime(float DeltaTime)
 
 		if (TickPreviousSeason != GetSeason())
 		{
-			FString Season = FString("UNDEFINED! AAAH!");
-			if (GetSeason() == ESeason::Spring)
-				Season = FString("Spring");
-			if (GetSeason() == ESeason::Summer)
-				Season = FString("Summer");
-			if (GetSeason() == ESeason::Fall)
-				Season = FString("Fall");
-			else if (GetSeason() == ESeason::Winter)
-				Season = FString("Winter");
-
 			UE_LOG(LogTemp, Log, TEXT("Welcome to a new season: %s!"), 
-				*Season);
+				*UsefulFunctions::EnumToString(FString("ESEason"), GetSeason()));
 			TickPreviousSeason = GetSeason();
 		}
 	}
@@ -148,7 +139,7 @@ void APizzaGameState::OnNewMonth()
 FString APizzaGameState::GetTimestamp(bool IncludeTimeOfDay)
 {
 	if(IncludeTimeOfDay)
-		return FString::Printf(TEXT("%.2f:%02d/%02d/%02d/%04d"), TimeOfDay, Day, Week, Month, Year);
+		return FString::Printf(TEXT("%07.2f:%02d/%02d/%02d/%04d"), TimeOfDay, Day, Week, Month, Year);
 	else
 		return FString::Printf(TEXT("%02d/%02d/%02d/%04d"), Day, Week, Month, Year);
 }
@@ -161,15 +152,18 @@ void APizzaGameState::GenerateNewOrders()
 		UCurveFloat* FreqCurve = nullptr;
 		
 		if (IsWeekend())
-			FreqCurve = *OrderFrequencyWeekends.Find(District.Type);
+			if (OrderFrequencyWeekends.Find(District.Type) != nullptr)
+				FreqCurve = *OrderFrequencyWeekends.Find(District.Type);
 		else
-			FreqCurve = *OrderFrequencyWeekdays.Find(District.Type);
+			if (OrderFrequencyWeekends.Find(District.Type) != nullptr)
+				FreqCurve = *OrderFrequencyWeekdays.Find(District.Type);
 
 		if (FreqCurve == nullptr)
 		{
 			FreqCurve = OrderFrequencyFallback;
 
-			UE_LOG(LogTemp, Error, TEXT("District Type %d does not have a order frequency! Using Fallback."));
+			UE_LOG(LogTemp, Error, TEXT("District Type %s does not have a order frequency! Using Fallback."),
+				*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type));
 			UE_LOG(LogTemp, Error, TEXT("IsWeekend: %s"), IsWeekend() ? TEXT("true") : TEXT("false"));
 
 			if (OrderFrequencyFallback == nullptr)
@@ -182,7 +176,8 @@ void APizzaGameState::GenerateNewOrders()
 
 		float OrderLikelihood = OrderFrequencyMultiplier * FreqCurve->GetFloatValue(TimeOfDay);
 
-		UE_LOG(LogTemp, Log, TEXT("Likelihood of an order being placed at %s: %.4f"),
+		UE_LOG(LogTemp, Log, TEXT("Likelihood of an order being placed in a %s district at %s: %.4f"),
+			*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type), 
 			*GetTimestamp(), OrderLikelihood);
 		UE_LOG(LogTemp, Log, TEXT("\t(calculation: FreqMod (%.4f) * Curve (%.4f), given curve %s"),
 			OrderFrequencyMultiplier, FreqCurve->GetFloatValue(TimeOfDay), *FreqCurve->GetName());

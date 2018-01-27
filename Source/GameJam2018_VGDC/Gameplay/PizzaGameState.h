@@ -45,6 +45,8 @@ private:
 
 	// Used for debug logging
 	ESeason TickPreviousSeason = ESeason::Winter;
+
+	float LastOrderGenerationCall = 0.0f;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -144,6 +146,12 @@ public:
 	// Make sure it's in order!
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time|Parameters")
 		TMap<ESeason, uint8> Seasons;
+
+	// How often (in game minutes) will we call the function that decides
+	//   whether to spawn an order
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders",
+		META = (ClampMin = 0.0f, UIMax = 1440.0f))
+		float OrderGenerationFrequency = 30.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
 		TArray<FOrder> OpenOrders;
