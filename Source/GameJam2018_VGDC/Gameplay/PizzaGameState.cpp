@@ -167,8 +167,8 @@ void APizzaGameState::GenerateNewOrders()
 			//   is messing with things. Move this to an actor.
 			FOrder SpawnedOrder = GenerateOrder(District);
 
-			UE_LOG(LogTemp, Log, TEXT("Adding order (%d) to array..."),
-				(uint8)SpawnedOrder.PizzaType);
+			//UE_LOG(LogTemp, Log, TEXT("Adding order (%d) to array..."),
+				//(uint8)SpawnedOrder.PizzaType);
 
 			OpenOrders.Add(SpawnedOrder);
 		}
@@ -253,5 +253,5 @@ FOrder APizzaGameState::GenerateOrder(const FDistrict& District)
 		*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type),
 		ExpireDuration, TimeOfDay + ExpireDuration);
 
-	return FOrder(ChosenTopping, ChosenBlock, TimeOfDay, TimeOfDay + ExpireDuration);
+	return FOrder();
 }
