@@ -8,6 +8,16 @@
 #include "GameFramework/GameStateBase.h"
 #include "PizzaGameState.generated.h"
 
+UENUM(BlueprintType)
+enum class EPeriodOfDay : uint8
+{
+	Twilight,	// 12:00AM - Sunrise
+	Morning,	// Sunrise - Noon
+	Noon,		// Noon - Afternoonish
+	Afternoon,	// Afternoonish - Sunset
+	Night		// Sunset - Midnight
+};
+
 /**
  * 
  */
@@ -16,6 +26,9 @@ class GAMEJAM2018_VGDC_API APizzaGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 	
+private:
+	// Used for debug logging
+	EPeriodOfDay TickPreviousPeriodOfDay = EPeriodOfDay::Twilight;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -30,6 +43,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Time")
 		bool IsWeekend();
+	// Assume's PeriodOfDayTimes is sorted
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		EPeriodOfDay GetPeriodOfDay();
 
 	// Bills players for upkeep
 	UFUNCTION(BlueprintCallable, Category = "Time")
@@ -74,6 +90,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
 		META = (UIMax = 10))
 		uint8 WeeksPerMonth = 2;
+
+	// Map of a day period : first minute (inclusive) of that period
+	// E.g. <Morning, 360> means Morning starts at 360 minutes,
+	//   and <Noon, 720> means morning will end at 720 exactly and Noon
+	//   will start then
+	// Make sure it's in order!
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time")
+		TMap<EPeriodOfDay, float> PeriodOfDayTimes;
 
 	// Dictates seasonal variations in frequency orders that might just be a
 	//   stretch goal
