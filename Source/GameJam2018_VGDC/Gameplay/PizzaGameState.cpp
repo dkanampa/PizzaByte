@@ -152,6 +152,7 @@ FString APizzaGameState::GetTimestamp(bool IncludeTimeOfDay)
 
 void APizzaGameState::GenerateNewOrders()
 {
+	// TODO: Only query districts that player's have towers in
 	for (FDistrict& District : Districts)
 	{
 		float OrderLikelihood = CalculateOrderLikelihood(District);
@@ -160,6 +161,16 @@ void APizzaGameState::GenerateNewOrders()
 		{
 			UE_LOG(LogTemp, Log, TEXT("Placing order in District %s..."), 
 				*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type));
+
+
+			// TODO: The array ends up having "None" elements, so I suspect the game state
+			//   is messing with things. Move this to an actor.
+			FOrder SpawnedOrder = GenerateOrder(District);
+
+			UE_LOG(LogTemp, Log, TEXT("Adding order (%d) to array..."),
+				(uint8)SpawnedOrder.PizzaType);
+
+			OpenOrders.Add(SpawnedOrder);
 		}
 	}
 }
@@ -210,4 +221,37 @@ float APizzaGameState::CalculateOrderLikelihood(const FDistrict& District)
 		OrderFrequencyMultiplier, FreqCurve->GetFloatValue(TimeOfDay), *FreqCurve->GetName());
 
 	return OrderLikelihood;
+}
+
+FOrder APizzaGameState::GenerateOrder(const FDistrict& District)
+{
+	/** Choose a topping */
+	EPizzaTopping ChosenTopping;
+
+	// Chooses the topping using the district's likelihoods, assuming they add
+	//   up to 1.0
+	// May or may not work; no time to explain, it's a game jam!
+	float RandomNumber = RNG.FRand();
+	float PreviousChancesSum = 0.0f;
+	for (auto& Elem : District.ToppingPreferences)
+	{
+		if (RandomNumber < PreviousChancesSum + Elem.Value)
+			ChosenTopping = Elem.Key;
+		else
+			PreviousChancesSum += Elem.Value;
+	}
+
+	/** Choose a sector and block */
+	FSector ChosenSector = UsefulFunctions::RandomElementInArray(District.Sectors, &RNG);
+	FBlock ChosenBlock = UsefulFunctions::RandomElementInArray(ChosenSector.Blocks, &RNG);
+
+	/** Choose Expirey Time */
+	float ExpireDuration = RNG.FRandRange(ExpireTimeMinMax.X, ExpireTimeMinMax.Y);
+
+	UE_LOG(LogTemp, Log, TEXT("Spawning an order for a %s Pizza in district %s, expiring in %.0f minutes (at time %7.2f)"), 
+		*UsefulFunctions::EnumToString(FString("EPizzaTopping"), ChosenTopping),
+		*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type),
+		ExpireDuration, TimeOfDay + ExpireDuration);
+
+	return FOrder(ChosenTopping, ChosenBlock, TimeOfDay, TimeOfDay + ExpireDuration);
 }

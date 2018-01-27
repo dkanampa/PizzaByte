@@ -41,4 +41,31 @@ public:
 		}
 		return (EnumType)Enum->GetValueByName(FName(*String));
 	}
+
+	/**
+	 * Returns a random element within the given array
+	 * Allows an optional RandomStream to be provided; falls back to 
+	 *   FMath::FRandRange() otherwise
+	 */
+	template <typename T>
+	static T RandomElementInArray(TArray<T> Array, FRandomStream* OptionalStream = nullptr)
+	{
+		if (OptionalStream != nullptr)
+		{
+			return Array[
+				FMath::FloorToInt(
+					OptionalStream->FRandRange(0.0f, Array.Num())
+				)
+			];
+		}
+		else
+		{
+			return Array[
+				FMath::FloorToInt(
+					FMath::FRandRange(0.0f, Array.Num())
+				)
+			];
+		}
+		
+	}
 };
