@@ -28,6 +28,9 @@ public:
 	bool PurchaseDistrictPermit(FDistrict* District);
 	bool PursueOrder(FOrder& Order, TArray<APizzaNode*> PizzaNodes);
 	bool hasBoughtSectorPermit(FDistrict* District);
+	bool PurchaseTowerWithFunds(FBlock* ToPurchase);
+	int32 GetOwnedNodesSizeInDistrict(FDistrict * District);
+	bool IsValidPath(EPizzaTopping Topping, TArray<APizzaNode*> Path);
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		int32 Funds;
