@@ -11,6 +11,10 @@ APizzaOrderManager::APizzaOrderManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	ToppingCosts.Add(EPizzaTopping::Cheese,    10);
+	ToppingCosts.Add(EPizzaTopping::Pepperoni, 12);
+	ToppingCosts.Add(EPizzaTopping::Sausage,   12);
+	ToppingCosts.Add(EPizzaTopping::Pineapple, 14);
 }
 
 void APizzaOrderManager::BeginPlay()
@@ -38,11 +42,14 @@ void APizzaOrderManager::Tick(float DeltaTime)
 		}
 	}
 
-	if (LastOrderGenerationCall + OrderGenerationFrequency <= GameState->TimeOfDay)
+	if (GameState->TimeOfDay >= NextOrderGenerationCall && 
+		GameState->TimeOfDay + OrderGenerationFrequency < 1440.0f)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Recalculating orders..."));
 		GenerateNewOrders();
-		LastOrderGenerationCall = GameState->TimeOfDay;
+		NextOrderGenerationCall = GameState->TimeOfDay + OrderGenerationFrequency;
+		if (NextOrderGenerationCall >= 1440.0f)
+			NextOrderGenerationCall -= 1440.0f;
 	}
 
 	// Expire old orders
@@ -143,6 +150,11 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 			PreviousChancesSum += Elem.Value;
 	}
 
+	/** Assign cost based on pizza topping */
+	int32 OrderCost = 10;
+	if(ToppingCosts.Find(ChosenTopping) != nullptr)
+		OrderCost = *ToppingCosts.Find(ChosenTopping);
+
 	/** Choose a sector and block */
 	FSector ChosenSector = UsefulFunctions::RandomElementInArray(District.Sectors, &RNG);
 	FBlock ChosenBlock = UsefulFunctions::RandomElementInArray(ChosenSector.Blocks, &RNG);
@@ -150,10 +162,14 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 	/** Choose Expirey Time */
 	float ExpireDuration = RNG.FRandRange(ExpireTimeMinMax.X, ExpireTimeMinMax.Y);
 
-	UE_LOG(LogTemp, Log, TEXT("Spawning an order for a %s Pizza in district %s, expiring in %.0f minutes (at time %.2f)"), 
-		*UsefulFunctions::EnumToString(FString("EPizzaTopping"), ChosenTopping),
-		*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type),
-		ExpireDuration, GameState->TimeOfDay + ExpireDuration);
+	float ExpireTime = GameState->TimeOfDay + ExpireDuration;
+	if (ExpireTime >= 1440.0f)
+		ExpireTime -= 1440.0f;
 
-	return FOrder(ChosenTopping, ChosenBlock, GameState->TimeOfDay, GameState->TimeOfDay + ExpireDuration);
+	UE_LOG(LogTemp, Log, TEXT("Spawning an order for a %s Pizza for $%d in district %s, expiring in %.0f minutes (at time %.2f)"), 
+		*UsefulFunctions::EnumToString(FString("EPizzaTopping"), ChosenTopping), OrderCost,
+		*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type),
+		ExpireDuration, ExpireTime);
+
+	return FOrder(ChosenTopping, OrderCost, ChosenBlock, GameState->TimeOfDay, ExpireTime);
 }
