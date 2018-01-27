@@ -18,6 +18,15 @@ enum class EPeriodOfDay : uint8
 	Night		// Sunset - Midnight
 };
 
+UENUM(BlueprintType)
+enum class ESeason : uint8
+{
+	Spring,
+	Summer,
+	Fall,
+	Winter
+};
+
 /**
  * 
  */
@@ -28,7 +37,10 @@ class GAMEJAM2018_VGDC_API APizzaGameState : public AGameStateBase
 	
 private:
 	// Used for debug logging
-	EPeriodOfDay TickPreviousPeriodOfDay = EPeriodOfDay::Twilight;
+	EPeriodOfDay TickPreviousPeriodOfDay = EPeriodOfDay::Night;
+
+	// Used for debug logging
+	ESeason TickPreviousSeason = ESeason::Winter;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -43,6 +55,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Time")
 		bool IsWeekend();
+
 	// Assume's PeriodOfDayTimes is sorted
 	UFUNCTION(BlueprintCallable, Category = "Time")
 		EPeriodOfDay GetPeriodOfDay();
@@ -50,6 +63,10 @@ public:
 	// Bills players for upkeep
 	UFUNCTION(BlueprintCallable, Category = "Time")
 		void OnNewMonth();	
+
+	// Assume's Seasons map is sorted
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		ESeason GetSeason();
 
 	// In minutes; loops back to 0 at 1440.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
@@ -70,10 +87,14 @@ public:
 		META = (ClampMin = 1))
 		uint8 Month = 1;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
+		META = (ClampMin = 1))
+		int32 Year = 1;
+
 	// How many in-game minutes pass per real-life second
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
 		META = (ClampMin = 0.1f, UIMax = 20.0f))
-		float TimeSpeed = 2.0f;
+		float TimeSpeed = 5.0f;
 
 	// Number of non-weekend days per week
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
@@ -91,6 +112,12 @@ public:
 		META = (UIMax = 10))
 		uint8 WeeksPerMonth = 2;
 
+	// Dictates seasonal variations in frequency orders that might just be a
+	//   stretch goal
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
+		META = (UIMax = 18))
+		uint8 MonthsPerYear = 8;
+
 	// Map of a day period : first minute (inclusive) of that period
 	// E.g. <Morning, 360> means Morning starts at 360 minutes,
 	//   and <Noon, 720> means morning will end at 720 exactly and Noon
@@ -99,11 +126,13 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time")
 		TMap<EPeriodOfDay, float> PeriodOfDayTimes;
 
-	// Dictates seasonal variations in frequency orders that might just be a
-	//   stretch goal
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
-		META = (UIMax = 52))
-		uint8 MonthsPerYear = 4;
+	// Map of season : first month (inclusive) of that season
+	// E.g. {Spring:0 , Summer:4} Spring will end and summer will begin when 
+	//   month 4 starts (at midnight)
+	// Make sure it's in order!
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time")
+		TMap<ESeason, uint8> Seasons;
+
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
 		TArray<FOrder> OpenOrders;
