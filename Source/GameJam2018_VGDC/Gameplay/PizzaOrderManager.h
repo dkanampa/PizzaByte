@@ -9,8 +9,11 @@
 #include "FOrder.h"
 
 #include "GameFramework/Actor.h"
-#include "Runtime/Engine/Classes/Engine/DirectionalLight.h"
 #include "PizzaOrderManager.generated.h"
+
+// Forward declare for circular dependencies
+class APizzaGameState;
+class APizzaPlayer;
 
 /**
  * Singleton actor responsible for creating orders

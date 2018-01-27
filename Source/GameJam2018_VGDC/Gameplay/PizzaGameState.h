@@ -6,10 +6,12 @@
 
 #include "GameFramework/GameStateBase.h"
 #include "Runtime/Engine/Classes/Engine/DirectionalLight.h"
+
 #include "PizzaGameState.generated.h"
 
 // Forward declare for circular dependencies
 class APizzaOrderManager;
+class APizzaPlayer;
 
 UENUM(BlueprintType)
 enum class EPeriodOfDay : uint8
@@ -82,6 +84,11 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
 		APizzaOrderManager* OrderManager;
 
+	// All players in the game; automatically queried for at the start of the 
+	//   game
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Management")
+		TArray<APizzaPlayer*> Players;
+
 	// In minutes; loops back to 0 at 1440.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
 		META = (ClampMin = 0.0f, ClampMax = 1440.0f))
@@ -146,6 +153,10 @@ public:
 	// Make sure it's in order!
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time|Parameters")
 		TMap<ESeason, uint8> Seasons;
+
+	// How much $/mo upkeep is per tower per player
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Upkeep")
+		int32 PerNodeUpkeep = 100;
 
 	// Scans for one at the beginning of the game; or will, eventually..
 	// TODO: Move sun across the sky

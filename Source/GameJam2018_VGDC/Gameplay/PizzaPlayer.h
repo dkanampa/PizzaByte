@@ -17,8 +17,8 @@ class GAMEJAM2018_VGDC_API APizzaPlayer : public APawn
 
 private:
 	//UPROPERTY(BlueprintReadWrite, EditAnywhere);
-	int32 Funds;
-	TArray<FPizzaNode> Nodes;
+	//int32 Funds;
+	//TArray<FPizzaNode> Nodes;
 	//UPROPERTY(BlueprintReadWrite, EditAnywhere);
 	TArray<FDistrict*> PermittedDistricts;
 protected:
@@ -31,4 +31,10 @@ public:
 	bool PurchaseTowerInSector(FSector* Sector);
 	bool PursueOrder(FOrder& Order);
 	bool hasBoughtSectorPermit(FDistrict* District);
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		int32 Funds;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		TArray<FPizzaNode> Nodes;
 };

@@ -2,6 +2,7 @@
 
 #include "PizzaGameState.h"
 #include "PizzaOrderManager.h"
+#include "PizzaPlayer.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "../GenericUsefulFunctions.h"
 
@@ -27,7 +28,16 @@ void APizzaGameState::BeginPlay()
 	Super::BeginPlay();
 
 	OrderManager = GetWorld()->SpawnActor<APizzaOrderManager>(OrderManagerClass);
-	OrderManager->GameState = this;
+
+	if (OrderManager == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Hey! This is a weird error that should never occur! Error code: BALLS!"));
+	}
+	else
+	{
+		OrderManager->GameState = this;
+	}
+	
 }
 
 void APizzaGameState::Tick(float DeltaTime)
@@ -134,7 +144,12 @@ ESeason APizzaGameState::GetSeason()
 
 void APizzaGameState::OnNewMonth()
 {
-	// TODO: Bill player
+	for (APizzaPlayer* Player : Players)
+	{
+		Player->Funds -= Player->Nodes.Num() * PerNodeUpkeep;
+		UE_LOG(LogTemp, Log, TEXT("This month's upkeep for player %s: %d"),
+			*Player->GetName(), Player->Nodes.Num() * PerNodeUpkeep);
+	}
 }
 
 FString APizzaGameState::GetTimestamp(bool IncludeTimeOfDay)

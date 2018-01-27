@@ -2,6 +2,7 @@
 
 #include "PizzaOrderManager.h"
 #include "PizzaGameState.h"
+#include "PizzaPlayer.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "../GenericUsefulFunctions.h"
 
@@ -17,6 +18,8 @@ void APizzaOrderManager::BeginPlay()
 	Super::BeginPlay();
 
 	RNG = FRandomStream(Seed);
+
+	OpenOrders.Reserve(32);
 }
 
 void APizzaOrderManager::Tick(float DeltaTime)
@@ -50,7 +53,7 @@ void APizzaOrderManager::Tick(float DeltaTime)
 			UE_LOG(LogTemp, Log, TEXT("Expiring Order for %s pizza"),
 				*UsefulFunctions::EnumToString(FString("EPizzaTopping"), OpenOrders[i].PizzaType));
 
-			OpenOrders.RemoveAt(i);
+			OpenOrders.RemoveAt(i, 1, false); // i.e. don't shrink
 			i--;
 		}
 	}
