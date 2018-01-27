@@ -19,9 +19,8 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<FBlock> Blocks;
-
-	// Pointer means we can have it null indicating no tower present
-	FPizzaNode* OccupyingNode;
+	
+	bool hasPizzaNode;
 
 	FDistrict* ParentDistrict;
 

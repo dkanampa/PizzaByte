@@ -6,4 +6,5 @@ USTRUCT(BlueprintType)
 struct FPizzaNode
 {
 	GENERATED_USTRUCT_BODY();
+	
 };
