@@ -53,16 +53,16 @@ public:
 		if (OptionalStream != nullptr)
 		{
 			return Array[
-				FMath::FloorToInt(
-					OptionalStream->FRandRange(0.0f, Array.Num())
+				FMath::RoundToInt(
+					OptionalStream->FRandRange(0.0f, Array.Num() - 1)
 				)
 			];
 		}
 		else
 		{
 			return Array[
-				FMath::FloorToInt(
-					FMath::FRandRange(0.0f, Array.Num())
+				FMath::RoundToInt(
+					FMath::FRandRange(0.0f, Array.Num() - 1)
 				)
 			];
 		}

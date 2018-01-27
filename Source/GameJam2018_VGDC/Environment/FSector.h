@@ -17,7 +17,7 @@ public:
 	
 	FSector(FDistrict* _ParentDistrict) :ParentDistrict(_ParentDistrict) {};
 
-	//UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<FBlock> Blocks;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
