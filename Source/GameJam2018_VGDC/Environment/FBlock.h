@@ -1,9 +1,9 @@
 #pragma once
 #include "CoreMinimal.h"
+#include "../Gameplay/PizzaNode.h"
 #include "FBlock.generated.h" 
 
-struct FSector; // Forward declare to avoid circular includes
-struct FPizzaNode;
+struct FSector;
 
 USTRUCT(BlueprintType) 
 struct FBlock
@@ -15,9 +15,8 @@ public:
 
 	FBlock(FSector* _ParentSector) :ParentSector(_ParentSector) {};
 
-	// Pointer means we can have it null indicating no tower present
-	FPizzaNode* OccupyingNode;
-
 	FSector* ParentSector;
 
+	// Pointer means we can have it null indicating no tower present
+	APizzaNode* OccupyingNode;
 };

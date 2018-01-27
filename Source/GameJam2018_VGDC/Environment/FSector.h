@@ -1,7 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "FBlock.h"
-#include "../Gameplay/FPizzaNode.h"
+#include "../Gameplay/PizzaNode.h"
 #include "FSector.generated.h" 
 
 struct FDistrict; // Forward declare to avoid circular includes
@@ -17,10 +17,11 @@ public:
 	
 	FSector(FDistrict* _ParentDistrict) :ParentDistrict(_ParentDistrict) {};
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	//UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<FBlock> Blocks;
-	
-	bool hasPizzaNode;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool HasPizzaNode;
 
 	FDistrict* ParentDistrict;
 
