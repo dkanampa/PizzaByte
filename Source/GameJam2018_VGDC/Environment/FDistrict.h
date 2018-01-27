@@ -24,6 +24,10 @@ public:
 
 	FDistrict(EDistrictType _Type) :Type(_Type) {};
 
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FName DistrictName;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<FSector> Sectors;
 

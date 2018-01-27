@@ -21,7 +21,13 @@ public:
 		TArray<FBlock> Blocks;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	bool HasPizzaNode;
+		bool HasPizzaNode;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FName SectorName;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FName ParentDistrictName;
 
 	FDistrict* ParentDistrict;
 
