@@ -1,19 +1,27 @@
 #pragma once
 #include "CoreMinimal.h"
-#include "FBlock.generated.h" // UE4-specific header, do not delete, even if it says it doesn't exist!
+#include "FBlock.generated.h" 
 
-USTRUCT(BlueprintType) // UE4-specific macro, do not delete!
+struct FSector; // Forward declare to avoid circular includes
+
+USTRUCT(BlueprintType) 
 struct FBlock
 {
-	GENERATED_USTRUCT_BODY(); // UE4-specific macro, do not delete!
+	GENERATED_USTRUCT_BODY(); 
 
 public:
-	// Public variables/functions
+	FBlock() {};
 
+	FBlock(FSector* _ParentSector) :ParentSector(_ParentSector) {};
 
-	FBlock(); // Default empty constructor not really necessary
+	// I.e. map of whether the building is occupied (by another business) to
+	//   where a new tower mesh can be placed
+	// Stored as such because we cannot access individual mesh instances, nor 
+	//   do we really need to; we just need to know where, if anywhere, we can 
+	//   place a new pizza transmission tower.
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		TMap<FVector, bool> Buildings;
 
-private:
-	// etc..
+	FSector* ParentSector;
 
 };

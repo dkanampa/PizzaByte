@@ -1,19 +1,28 @@
 #pragma once
 #include "CoreMinimal.h"
-#include "FSector.generated.h" // UE4-specific header, do not delete, even if it says it doesn't exist!
+#include "FBlock.h"
+#include "../Gameplay/FPizzaNode.h"
+#include "FSector.generated.h" 
 
-USTRUCT(BlueprintType) // UE4-specific macro, do not delete!
+struct FDistrict; // Forward declare to avoid circular includes
+
+USTRUCT(BlueprintType)
 struct FSector
 {
-	GENERATED_USTRUCT_BODY(); // UE4-specific macro, do not delete!
+	GENERATED_USTRUCT_BODY(); 
 
 public:
-	// Public variables/functions
 
+	FSector() {};
+	
+	FSector(FDistrict* _ParentDistrict) :ParentDistrict(_ParentDistrict) {};
 
-	FSector(); // Default empty constructor not really necessary
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		TArray<FBlock> Blocks;
 
-private:
-	// etc..
+	// Pointer means we can have it null indicating no tower present
+	FPizzaNode* OccupyingNode;
+
+	FDistrict* ParentDistrict;
 
 };

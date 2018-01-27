@@ -19,6 +19,11 @@ struct FDistrict
 	GENERATED_USTRUCT_BODY(); // UE4-specific macro, do not delete!
 
 public:
+	
+	FDistrict() {};
+
+	FDistrict(EDistrictType _Type) :Type(_Type) {};
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<FSector> Sectors;
 
