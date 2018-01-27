@@ -47,6 +47,10 @@ private:
 	ESeason TickPreviousSeason = ESeason::Winter;
 
 	float LastOrderGenerationCall = 0.0f;
+
+
+	int32 Seed = 0; // TODO Make this public UProperty
+	FRandomStream RNG;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -67,7 +71,7 @@ public:
 		EPeriodOfDay GetPeriodOfDay();
 
 	// Bills players for upkeep
-	UFUNCTION(BlueprintCallable, Category = "Time")
+	UFUNCTION(BlueprintCallable, Category = "Time|Helper Functions")
 		void OnNewMonth();	
 
 	// Assume's Seasons map is sorted
@@ -81,6 +85,10 @@ public:
 	// Called every hour; may no orders or a bunch, depending on the will of RNGesus
 	UFUNCTION(BlueprintCallable, Category = "Orders")
 		void GenerateNewOrders();
+
+	// Called every hour; may no orders or a bunch, depending on the will of RNGesus
+	UFUNCTION(BlueprintCallable, Category = "Orders|Helper Functions")
+		float CalculateOrderLikelihood(const FDistrict& District);
 
 	// In minutes; loops back to 0 at 1440.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
