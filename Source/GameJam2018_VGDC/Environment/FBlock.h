@@ -3,6 +3,7 @@
 #include "FBlock.generated.h" 
 
 struct FSector; // Forward declare to avoid circular includes
+struct FPizzaNode;
 
 USTRUCT(BlueprintType) 
 struct FBlock
