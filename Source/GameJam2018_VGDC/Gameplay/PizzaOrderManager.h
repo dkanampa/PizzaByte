@@ -26,7 +26,7 @@ class GAMEJAM2018_VGDC_API APizzaOrderManager : public AActor
 	
 private:
 
-	float LastOrderGenerationCall = 0.0f;
+	float NextOrderGenerationCall = 0.0f;
 
 	int32 Seed = 0; // TODO Make this public UProperty
 	FRandomStream RNG;
@@ -67,6 +67,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
 		TArray<FOrder> OpenOrders;
+
+	// Defines order costs
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
+		TMap<EPizzaTopping, int32> ToppingCosts;
 
 	// Tweaking this can increase/decrease likelihood of order placement.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders",
