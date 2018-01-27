@@ -51,12 +51,12 @@ bool APizzaPlayer::PurchaseDistrictPermit(FDistrict * District)
 	// Check if the player owns the sector's permit
 	if (APizzaPlayer::hasBoughtSectorPermit(District)) return false;
 	// Otherwise, add the permit to the player's district
-	PermittedDistricts.Emplace(District);
+	PermittedDistricts.Emplace(*District);
 	return false;
 }
 
 // Pursues an order for the player
-bool APizzaPlayer::PursueOrder(FOrder& Order, TArray<APizzaNode> PizzaNodes) {
+bool APizzaPlayer::PursueOrder(FOrder& Order, TArray<APizzaNode*> PizzaNodes) {
 	// TODO
 	return false;
 }
@@ -64,7 +64,7 @@ bool APizzaPlayer::PursueOrder(FOrder& Order, TArray<APizzaNode> PizzaNodes) {
 // Returns if this player owns a certain district's permit
 bool APizzaPlayer::hasBoughtSectorPermit(FDistrict* District) {
 	for (auto Permit : PermittedDistricts) {
-		if (Permit == District) return true;
+		if (&Permit == District) return true;
 	}
 	return false;
 }

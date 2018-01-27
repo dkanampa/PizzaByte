@@ -2,7 +2,7 @@
 #include "CoreMinimal.h"
 #include "EPizzaTopping.h"
 #include "../Environment/FBlock.h"
-#include "FOrder.generated.h" 
+#include "FOrder.generated.h"
 
 USTRUCT(BlueprintType)
 struct FOrder

@@ -17,10 +17,13 @@ class GAMEJAM2018_VGDC_API APizzaPlayer : public APawn
 {
 	GENERATED_BODY()
 
-private:
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int32 Funds;
-	TArray<APizzaNode> Nodes;
-	TArray<FDistrict*> PermittedDistricts;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<APizzaNode*> Nodes;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<FDistrict> PermittedDistricts;
 protected:
 	virtual void BeginPlay() override;
 
@@ -30,6 +33,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	bool PurchaseTowerInSector(FSector* Sector, FBlock* ToPurchase, EPizzaTopping Topping);
 	bool PurchaseDistrictPermit(FDistrict* District);
-	bool PursueOrder(FOrder& Order, TArray<APizzaNode> PizzaNodes);
+	bool PursueOrder(FOrder& Order, TArray<APizzaNode*> PizzaNodes);
 	bool hasBoughtSectorPermit(FDistrict* District);
 };
