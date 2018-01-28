@@ -31,8 +31,10 @@ void APizzaOrderManager::BeginPlay()
 
 	GenerateCharacterSets();
 
-	OrderRNG = FRandomStream(OrderSeed);
-	PizzaCodeRNG = FRandomStream(PizzaSeed);
+
+
+	OrderRNG = FRandomStream(FMath::RandRange(0, 100));
+	PizzaCodeRNG = FRandomStream(FMath::RandRange(0, 100));
 
 	OpenOrders.Reserve(32);
 
