@@ -8,6 +8,7 @@
 #include "Environment/FSector.h"
 #include "PizzaNode.h"
 #include "FOrder.h"
+#include "OrderPopup.h"
 #include "../Environment/FSector.h"
 #include "../Environment/FBlock.h"
 #include "PizzaPlayer.generated.h"
@@ -52,6 +53,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<APizzaNode*> SelectedNodes;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		AOrderPopup* SelectedPopup;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		FOrder CurrentOrder;

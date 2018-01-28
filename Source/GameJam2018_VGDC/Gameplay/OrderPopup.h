@@ -31,4 +31,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		FOrder Order;
 	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		bool IsSelected;
 };
