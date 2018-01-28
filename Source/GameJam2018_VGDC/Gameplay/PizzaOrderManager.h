@@ -86,6 +86,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Pizza Code")
 		void GenerateCharacterSets();
 
+	/**
+	 * Completes an order by removing it from the current
+	 * list of open orders.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Orders")
+		void CompleteOrder(FOrder Order);
+
+
 	// Assigned by GameState when it spawns us
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
 		class APizzaGameState* GameState;
