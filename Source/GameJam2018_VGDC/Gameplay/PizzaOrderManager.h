@@ -7,6 +7,7 @@
 #include "PizzaPlayer.h"
 #include "../Environment/FDistrict.h"
 #include "FOrder.h"
+#include "FCharsetFlags.h"
 
 #include "GameFramework/Actor.h"
 #include "PizzaOrderManager.generated.h"
@@ -28,9 +29,22 @@ private:
 
 	float NextOrderGenerationCall = 0.0f;
 
-	int32 Seed = 0; // TODO Make this public UProperty
-	FRandomStream RNG;
+	int32 OrderSeed = 0; // TODO Make this public UProperty
+	int32 PizzaSeed = 0;
+	FRandomStream OrderRNG;
+	FRandomStream PizzaCodeRNG;
+
+	// Lower case letters; doesn't include null terminator, so don't print!
+	TArray<TCHAR> CharSetLowercase;
+	// Upper case letters; doesn't include null terminator, so don't print!
+	TArray<TCHAR> CharSetUppercase;
+	// Numeric characters; doesn't include null terminator, so don't print!
+	TArray<TCHAR> CharSetNumeric;
+	// Non-alphanumeric characters; doesn't include null terminator, so don't print!
+	TArray<TCHAR> CharSetSpecial;
 	
+	void TestCodeGeneration();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -56,15 +70,38 @@ public:
 		FOrder GenerateOrder(const FDistrict& District);
 
 	/**
+	 * Generates a randomly long string of garbage whose length depends on
+	 *   the distance the code has to travel.
+	 * Also different node toppings affect the character set:
+	 *   cheese is just [a-z], pepperoni is [a-z][A-Z], sausage is 
+	 *   [a-z]/!@#$%^&*(), pineapple is !@#$%^&*()/[0-9]...
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Pizza Code")
+		FString GeneratePizzaCode(float Distance, TArray<APizzaNode*> Nodes);
+
+	/**
+	 * Generates our lowercase, uppercase, numeric, and special Character Sets
+	 *   for pizza code generation
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Pizza Code")
+		void GenerateCharacterSets();
+
+	/**
 	 * Completes an order by removing it from the current
 	 * list of open orders.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Orders")
 		void CompleteOrder(FOrder Order);
 
+
 	// Assigned by GameState when it spawns us
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
 		class APizzaGameState* GameState;
+
+	// Generated pizza code is Floor(DifficultyMod * Distance) characters
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders",
+		META = (ClampMin = 0.0f, UIMax = 20.0f))
+		float DifficultyModifier = 1.0f;
 
 	// How often (in game minutes) will we call the function that decides
 	//   whether to spawn an order
@@ -114,5 +151,10 @@ public:
 	// REMEMBER FOR GOD'S SAKE TO PASS BY REFERENCE!!!!!!!!!!
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Environment")
 		TArray<FDistrict> Districts;
+
+	// Map of what set of characters a node of the given topping will
+	//   add to the generation set
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Pizza Code")
+		TMap<EPizzaTopping, FCharsetFlags> ToppingCodeCharacterSets;
 
 };
