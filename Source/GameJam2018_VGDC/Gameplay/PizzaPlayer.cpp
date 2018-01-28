@@ -86,6 +86,14 @@ bool APizzaPlayer::IsValidPath(FOrder Order, TArray<APizzaNode*> Path, float& Re
 
 	float LastStretch = FVector::Distance(Path[Path.Num() - 1]->GetActorLocation(), Order.ExactLocation);
 	ReturnedPathLength += LastStretch;
+
+	UE_LOG(LogTemp, Log, TEXT("Path calculated that distance between %s and %s is: %f"),
+		*Path[Path.Num() - 1]->GetActorLocation().ToString(),
+		*Order.ExactLocation.ToString(),
+		LastStretch);
+
+	UE_LOG(LogTemp, Log, TEXT("Comparing %.3f < %.3f..."), LastStretch, MaxNodeOrderDistance);
+
 	return LastStretch < MaxNodeOrderDistance;
 }
 
@@ -95,23 +103,34 @@ bool APizzaPlayer::CheckOrder(FString Response)
 	// Invalidate if the path does not satisfy the order
 	float PathDistance = 0.0f;
 	if (!APizzaPlayer::IsValidPath(CurrentOrder, SelectedNodes, PathDistance)) {
-		UE_LOG(LogTemp, Error, TEXT("CheckOrder has deemed the path to be invalid!"));
+		UE_LOG(LogTemp, Warning, TEXT("CheckOrder has deemed the path to be invalid!"));
 		return false;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Path looks good! Checking code..."));
 	}
 
 	// Check to make sure response matches pizza code
 	if (!Response.Equals(CurrentOrderCode))
 	{
-		UE_LOG(LogTemp, Log, TEXT("CheckOrder has deemed the player messed up the PizzaCode"));
-		UE_LOG(LogTemp, Log, TEXT("Code:  %s"), *CurrentOrderCode);
-		UE_LOG(LogTemp, Log, TEXT("Input: %s"), *Response);
+		UE_LOG(LogTemp, Warning, TEXT("CheckOrder has deemed the player messed up the PizzaCode"));
+		UE_LOG(LogTemp, Warning, TEXT("Code:  %s"), *CurrentOrderCode);
+		UE_LOG(LogTemp, Warning, TEXT("Input: %s"), *Response);
 		return false;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Player successfuly entered code: %s"), *Response);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Order completed successfully! Giving player %s $%d"),
 		*GetName(), CurrentOrder.OrderCost);
 	// Add payment to total funds
 	Funds += CurrentOrder.OrderCost;
+
+	SelectedNodes.Empty();
+
 	return true;
 }
 
