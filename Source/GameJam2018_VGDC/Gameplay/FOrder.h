@@ -31,4 +31,7 @@ struct FOrder
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 		float ExpireTime;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		FString PizzaCode;
 };

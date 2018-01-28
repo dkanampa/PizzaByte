@@ -26,7 +26,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	bool PurchaseTowerInSector(FSector* Sector, FBlock* ToPurchase, EPizzaTopping Topping);
 	bool PurchaseDistrictPermit(FDistrict* District);
-	bool PursueOrder(FOrder& Order, TArray<APizzaNode*> PizzaNodes);
+	UFUNCTION(BlueprintCallable, Category = "Orders")
+		bool CheckOrder(TArray<APizzaNode*> PizzaNodes, FString response);
 	bool hasBoughtSectorPermit(FDistrict* District);
 	bool PurchaseTowerWithFunds(FBlock* ToPurchase);
 	int32 GetOwnedNodesSizeInDistrict(FDistrict * District);
@@ -40,4 +41,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<FDistrict> PermittedDistricts;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FOrder CurrentOrder;
 };
