@@ -165,9 +165,15 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 	for (auto& Elem : District.ToppingPreferences)
 	{
 		if (RandomNumber < PreviousChancesSum + Elem.Value)
+		{
 			ChosenTopping = Elem.Key;
+			break;
+		}
 		else
+		{
 			PreviousChancesSum += Elem.Value;
+		}
+			
 	}
 
 	/** Assign cost based on pizza topping */
