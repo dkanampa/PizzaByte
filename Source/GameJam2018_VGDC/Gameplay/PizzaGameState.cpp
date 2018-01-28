@@ -123,7 +123,7 @@ void APizzaGameState::FindOrSpawnLevelManager()
 			*LevelManager->GetName());
 	}
 
-	//LevelManager->GameState = this;
+	LevelManager->GameState = this;
 }
 
 void APizzaGameState::Tick(float DeltaTime)

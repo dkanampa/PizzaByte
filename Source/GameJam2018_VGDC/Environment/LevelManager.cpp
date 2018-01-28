@@ -2,6 +2,7 @@
 
 #include "LevelManager.h"
 #include "Runtime/Engine/Classes/Components/BoxComponent.h"
+#include "../Gameplay/PizzaGameState.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 
 // Sets default values

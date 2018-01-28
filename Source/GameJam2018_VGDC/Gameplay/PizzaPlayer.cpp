@@ -129,8 +129,6 @@ bool APizzaPlayer::CheckOrder(FString Response)
 	// Add payment to total funds
 	Funds += CurrentOrder.OrderCost;
 
-	SelectedNodes.Empty();
-
 	return true;
 }
 
