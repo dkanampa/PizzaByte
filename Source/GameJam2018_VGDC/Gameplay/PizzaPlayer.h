@@ -13,6 +13,10 @@
 #include "../Environment/FBlock.h"
 #include "PizzaPlayer.generated.h"
 
+class APizzaGameState;
+class APizzaOrderManager;
+class ALevelManager;
+
 UCLASS()
 class GAMEJAM2018_VGDC_API APizzaPlayer : public APawn
 {
@@ -41,6 +45,19 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		bool IsValidPath(EPizzaTopping Topping, TArray<APizzaNode*> Path);
+
+	// Assigned by GameState immediately after begin play
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
+		APizzaGameState* GameState;
+
+	// Assigned by GameState immediately after begin play
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
+		APizzaOrderManager* OrderManager;
+
+	// Assigned by GameState immediately after begin play
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
+		ALevelManager* LevelManager;
+	
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		int32 Funds;

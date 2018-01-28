@@ -14,6 +14,8 @@
 
 // Forward declare for circular dependencies
 class APizzaGameState;
+class APizzaOrderManager;
+class APizzaLevelManager;
 class APizzaPlayer;
 class AOrderPopup;
 
@@ -97,7 +99,7 @@ public:
 
 	// Assigned by GameState when it spawns us
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
-		class APizzaGameState* GameState;
+		APizzaGameState* GameState;
 
 	// Generated pizza code is Floor(DifficultyMod * Distance) characters
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders",
