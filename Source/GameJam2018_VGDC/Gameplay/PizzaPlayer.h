@@ -41,7 +41,7 @@ public:
 	bool PurchaseDistrictPermit(FDistrict* District);
 
 	UFUNCTION(BlueprintCallable, Category = "Orders")
-		bool CheckOrder(TArray<APizzaNode*> PizzaNodes, FString response);
+		bool CheckOrder(FOrder Order, TArray<APizzaNode*> PizzaNodes, FString Response);
 
 	bool hasBoughtSectorPermit(FDistrict* District);
 
@@ -49,8 +49,14 @@ public:
 
 	int32 GetOwnedNodesSizeInDistrict(FDistrict* District);
 
+	/**
+	 * Makes sure that the path to the order is valid:
+	 *   All necessary toppings are included,
+	 *   Distance between last node and order isn't to ofar
+	 * @param ReturnedPathLength returns by reference the calculated distance for the entire path
+	 */
 	UFUNCTION(BlueprintCallable)
-		bool IsValidPath(EPizzaTopping Topping, TArray<APizzaNode*> Path);
+		bool IsValidPath(FOrder Order, TArray<APizzaNode*> Path, float& ReturnedPathLength);
 
 	/**
 	 * Can take negative or positive values.
@@ -103,6 +109,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		AOrderPopup* SelectedPopup;
+
+	// Max distance between last node and an order that we'll allow
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		float MaxNodeOrderDistance = 500.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		FOrder CurrentOrder;

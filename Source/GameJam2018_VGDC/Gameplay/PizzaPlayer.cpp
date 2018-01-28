@@ -66,25 +66,50 @@ bool APizzaPlayer::PurchaseDistrictPermit(FDistrict * District)
 	return false;
 }
 
-bool APizzaPlayer::IsValidPath(EPizzaTopping Topping, TArray<APizzaNode*> Path)
+bool APizzaPlayer::IsValidPath(FOrder Order, TArray<APizzaNode*> Path, float& ReturnedPathLength)
 {
-	// Loop over all nodes and verify that they satisfy the Order
-	for (auto node : Path) {
-		if (node->Topping == Topping) return true;
-	}
-	return false;
+	ReturnedPathLength = 0.0f;
 
+	if (Path.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("IsValidPath was given an empty path!"));
+		return false;
+	}
+	
+	// Calculate node-node length
+	FVector PreviousNodeLocation = Path[0]->GetActorLocation();
+	for (int i = 1; i < Path.Num(); i++) // Start from second node, if available
+	{
+		ReturnedPathLength += FVector::Distance(Path[i]->GetActorLocation(), PreviousNodeLocation);
+		PreviousNodeLocation = Path[i]->GetActorLocation();
+	}
+
+	float LastStretch = FVector::Distance(Path[Path.Num() - 1]->GetActorLocation(), Order.ExactLocation);
+	ReturnedPathLength += LastStretch;
+	return LastStretch < MaxNodeOrderDistance;
 }
 
 // Pursues an order for the player
-bool APizzaPlayer::CheckOrder(TArray<APizzaNode*> Path, FString response)
+bool APizzaPlayer::CheckOrder(FOrder Order, TArray<APizzaNode*> Path, FString Response)
 {
 	// Invalidate if the path does not satisfy the order
-	if (!APizzaPlayer::IsValidPath(CurrentOrder.PizzaType, Path) && CurrentOrder.PizzaCode != response) {
+	float PathDistance = 0.0f;
+	if (!APizzaPlayer::IsValidPath(Order, Path, PathDistance)) {
+		UE_LOG(LogTemp, Error, TEXT("CheckOrder has deemed the path to be invalid!"));
 		return false;
 	}
+
+	// Check to make sure response matches pizza code
+	if (!Response.Equals(OrderManager->GeneratePizzaCode(PathDistance, Path)))
+	{
+		UE_LOG(LogTemp, Log, TEXT("CheckOrder has deemed the player messed up the PizzaCode"));
+		return false;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Order completed successfully! Giving player %s $%d"),
+		*GetName(), Order.OrderCost);
 	// Add payment to total funds
-	Funds += CurrentOrder.OrderCost;
+	Funds += Order.OrderCost;
 	return true;
 }
 

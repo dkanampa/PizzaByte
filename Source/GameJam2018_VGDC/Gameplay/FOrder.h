@@ -27,11 +27,15 @@ struct FOrder
 		FBlock Block;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		FVector ExactLocation;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 		float TimePlaced;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 		float ExpireTime;
 
+	// DO NOT USE! If you need a code, call OrderManager->GenerateCode()!
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-		FString PizzaCode;
+		FString PizzaCode = "DEPRECATED";
 };
