@@ -3,7 +3,7 @@
 #include "../Gameplay/PizzaNode.h"
 #include "FBlock.generated.h" 
 
-struct FSector; // Forward declare to avoid circular includes
+struct FSector;
 
 USTRUCT(BlueprintType) 
 struct FBlock
@@ -15,13 +15,20 @@ public:
 
 	FBlock(FSector* _ParentSector) :ParentSector(_ParentSector) {};
 
-	// I.e. map of whether the building is occupied (by another business) to
-	//   where a new tower mesh can be placed
-	// Stored as such because we cannot access individual mesh instances, nor 
-	//   do we really need to; we just need to know where, if anywhere, we can 
-	//   place a new pizza transmission tower.
+	FVector GetBlockCenter();
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "3D")
+		TArray<FVector> NodeLocations;
+
+	/// For simplicity sake we'll implement this later and just give
+	///   or level designer an array of vectors to implement
+	// Positions in 3d where towers can go, and a boolean flag indicating
+	//   whether that spot is occupied
+	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "3D")
+	//	TMap<FVector, bool> TowerSpots;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-		TMap<FVector, bool> Buildings;
+		FName ParentSectorName;
 
 	FSector* ParentSector;
 
