@@ -15,7 +15,6 @@ APizzaPlayer::APizzaPlayer()
 void APizzaPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // Called every frame
@@ -49,7 +48,7 @@ bool APizzaPlayer::PurchaseTowerInSector(FSector * Sector, FBlock* ToPurchase,
 
 // Returns if a player has enough Funds to purchase the requested Tower
 bool APizzaPlayer::PurchaseTowerWithFunds(FBlock* ToPurchase) {
-	float cost = GetOwnedNodesSizeInDistrict(ToPurchase->ParentSector->ParentDistrict) * ToPurchase->ParentSector->ParentDistrict->PropertyRate;
+	int32 cost = GetOwnedNodesSizeInDistrict(ToPurchase->ParentSector->ParentDistrict) * ToPurchase->ParentSector->ParentDistrict->PropertyRate;
 	if (Funds - cost >= 0.0f) {
 		Funds -= cost;
 		return true;
@@ -77,13 +76,14 @@ bool APizzaPlayer::IsValidPath(EPizzaTopping Topping, TArray<APizzaNode*> Path)
 }
 
 // Pursues an order for the player
-bool APizzaPlayer::PursueOrder(FOrder& Order, TArray<APizzaNode*> Path)
+bool APizzaPlayer::CheckOrder(TArray<APizzaNode*> Path, FString response)
 {
 	// Invalidate if the path does not satisfy the order
-	if (!APizzaPlayer::IsValidPath(Order.PizzaType, Path)) {
+	if (!APizzaPlayer::IsValidPath(CurrentOrder.PizzaType, Path) && CurrentOrder.PizzaCode != response) {
 		return false;
 	}
-	// Add payment to total Funds (TODO)
+	// Add payment to total funds
+	Funds += CurrentOrder.OrderCost;
 	return true;
 }
 

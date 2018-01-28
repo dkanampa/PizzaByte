@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "EPizzaTopping.h"
-//#include "../Environment/FDistrict.h"
 #include "PizzaNode.generated.h"
 
 struct FDistrict;

@@ -173,3 +173,8 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 
 	return FOrder(ChosenTopping, OrderCost, ChosenBlock, GameState->TimeOfDay, ExpireTime);
 }
+
+void APizzaOrderManager::CompleteOrder(FOrder Order)
+{
+	// TODO
+}
