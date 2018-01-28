@@ -39,7 +39,7 @@ public:
 	bool PurchaseDistrictPermit(FDistrict* District);
 
 	UFUNCTION(BlueprintCallable, Category = "Orders")
-		bool CheckOrder(FOrder Order, TArray<APizzaNode*> PizzaNodes, FString Response);
+		bool CheckOrder(FString Response);
 
 	bool hasBoughtSectorPermit(FDistrict* District);
 
