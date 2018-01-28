@@ -90,26 +90,26 @@ bool APizzaPlayer::IsValidPath(FOrder Order, TArray<APizzaNode*> Path, float& Re
 }
 
 // Pursues an order for the player
-bool APizzaPlayer::CheckOrder(FOrder Order, TArray<APizzaNode*> Path, FString Response)
+bool APizzaPlayer::CheckOrder(FString Response)
 {
 	// Invalidate if the path does not satisfy the order
 	float PathDistance = 0.0f;
-	if (!APizzaPlayer::IsValidPath(Order, Path, PathDistance)) {
+	if (!APizzaPlayer::IsValidPath(CurrentOrder, SelectedNodes, PathDistance)) {
 		UE_LOG(LogTemp, Error, TEXT("CheckOrder has deemed the path to be invalid!"));
 		return false;
 	}
 
 	// Check to make sure response matches pizza code
-	if (!Response.Equals(OrderManager->GeneratePizzaCode(PathDistance, Path)))
+	if (!Response.Equals(OrderManager->GeneratePizzaCode(PathDistance, SelectedNodes)))
 	{
 		UE_LOG(LogTemp, Log, TEXT("CheckOrder has deemed the player messed up the PizzaCode"));
 		return false;
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Order completed successfully! Giving player %s $%d"),
-		*GetName(), Order.OrderCost);
+		*GetName(), CurrentOrder.OrderCost);
 	// Add payment to total funds
-	Funds += Order.OrderCost;
+	Funds += CurrentOrder.OrderCost;
 	return true;
 }
 
