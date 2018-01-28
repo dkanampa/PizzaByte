@@ -100,9 +100,11 @@ bool APizzaPlayer::CheckOrder(FString Response)
 	}
 
 	// Check to make sure response matches pizza code
-	if (!Response.Equals(OrderManager->GeneratePizzaCode(PathDistance, SelectedNodes)))
+	if (!Response.Equals(CurrentOrderCode))
 	{
 		UE_LOG(LogTemp, Log, TEXT("CheckOrder has deemed the player messed up the PizzaCode"));
+		UE_LOG(LogTemp, Log, TEXT("Code:  %s"), *CurrentOrderCode);
+		UE_LOG(LogTemp, Log, TEXT("Input: %s"), *Response);
 		return false;
 	}
 

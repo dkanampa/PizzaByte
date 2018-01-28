@@ -291,7 +291,7 @@ void APizzaOrderManager::GenerateCharacterSets()
 
 FString APizzaOrderManager::GeneratePizzaCode(float Distance, TArray<APizzaNode*> Nodes)
 {
-	int32 StringLength = FMath::FloorToInt(Distance * DifficultyModifier);
+	int32 StringLength = FMath::Clamp(FMath::FloorToInt( (Distance / 100.0f) * DifficultyModifier), 4, 32);
 	
 	// TODO: Learn Bitmasks so I don't have to do this
 	FCharsetFlags SumFlags;

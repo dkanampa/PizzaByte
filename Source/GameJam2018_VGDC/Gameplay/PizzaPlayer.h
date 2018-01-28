@@ -107,10 +107,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		AOrderPopup* SelectedPopup;
 
+
+
 	// Max distance between last node and an order that we'll allow
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		float MaxNodeOrderDistance = 500.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		FOrder CurrentOrder;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FString CurrentOrderCode = "";
 };
