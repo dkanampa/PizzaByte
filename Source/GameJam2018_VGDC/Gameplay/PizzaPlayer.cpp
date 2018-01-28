@@ -75,7 +75,7 @@ bool APizzaPlayer::IsValidPath(FOrder Order, TArray<APizzaNode*> Path, float& Re
 		UE_LOG(LogTemp, Error, TEXT("IsValidPath was given an empty path!"));
 		return false;
 	}
-	
+
 	// Calculate node-node length
 	FVector PreviousNodeLocation = Path[0]->GetActorLocation();
 	for (int i = 1; i < Path.Num(); i++) // Start from second node, if available
@@ -151,8 +151,7 @@ int32 APizzaPlayer::GetOwnedNodesSizeInDistrict(FDistrict * District)
 	return count;
 }
 
-void APizzaPlayer::OnBankruptcyMaxed()
-{
+void APizzaPlayer::OnBankruptcyMaxed_Implementation() {
 	UE_LOG(LogTemp, Log, TEXT("Player %s just found out they've been bankrupt too long!!"),
 		*GetName());
 }
@@ -174,7 +173,7 @@ void APizzaPlayer::AddOrRemoveFunds(int32 Amount)
 		UE_LOG(LogTemp, Log, TEXT("Player %s has left bankruptcy!"), *GetName());
 		GameState->UpdatePlayerBankruptcy(this, false);
 	}
-	
+
 	AlreadyBankrupt = Funds < 0;
 }
 
@@ -185,7 +184,7 @@ int32 APizzaPlayer::GetFunds()
 
 bool APizzaPlayer::AssertHasGameState()
 {
-	UE_CLOG(GameState == nullptr, LogTemp, Error, 
+	UE_CLOG(GameState == nullptr, LogTemp, Error,
 		TEXT("AssertHasGameState failed for Player %s"), *GetName());
 	return GameState != nullptr;
 }
