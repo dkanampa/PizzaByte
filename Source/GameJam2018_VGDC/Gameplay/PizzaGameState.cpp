@@ -126,10 +126,12 @@ void APizzaGameState::Tick(float DeltaTime)
 	if (HasHadFirstTick == false)
 		PostBeginPlay();
 
-	UpdateGameTime(DeltaTime);
+	float PassedTime = UpdateGameTime(DeltaTime);
+
+	UpdateBankruptPlayers(PassedTime);
 }
 
-void APizzaGameState::UpdateGameTime(float DeltaTime)
+float APizzaGameState::UpdateGameTime(float DeltaTime)
 {
 	TimeOfDay += DeltaTime * TimeSpeed;
 
@@ -181,6 +183,8 @@ void APizzaGameState::UpdateGameTime(float DeltaTime)
 
 		UE_LOG(LogTemp, Log, TEXT("Happy new year, %d!"), Year);
 	}
+
+	return DeltaTime * TimeSpeed;
 }
 
 bool APizzaGameState::IsWeekend()
@@ -230,7 +234,7 @@ void APizzaGameState::OnNewMonth()
 
 	for (APizzaPlayer* Player : Players)
 	{
-		Player->Funds -= Player->Nodes.Num() * PerNodeUpkeep;
+		Player->AddOrRemoveFunds(Player->Nodes.Num() * PerNodeUpkeep * -1);
 		UE_LOG(LogTemp, Log, TEXT("This month's upkeep for player %s: %d (%d towers * %d$/mo)"),
 			*Player->GetName(), Player->Nodes.Num() * PerNodeUpkeep, Player->Nodes.Num(), PerNodeUpkeep);
 	}
@@ -242,4 +246,32 @@ FString APizzaGameState::GetTimestamp(bool IncludeTimeOfDay)
 		return FString::Printf(TEXT("%07.2f:%02d/%02d/%02d/%04d"), TimeOfDay, Day, Week, Month, Year);
 	else
 		return FString::Printf(TEXT("%02d/%02d/%02d/%04d"), Day, Week, Month, Year);
+}
+
+void APizzaGameState::UpdatePlayerBankruptcy(APizzaPlayer* Player, bool EnteringBankruptcy)
+{
+	if (EnteringBankruptcy) 
+	{
+		BankruptPlayers.Add(Player, 0.0f);
+		UE_LOG(LogTemp, Log, TEXT("Adding Player %s to BankruptPlayers"), *Player->GetName());
+	}
+	else 
+	{
+		BankruptPlayers.Remove(Player);
+		UE_LOG(LogTemp, Log, TEXT("Removing Player %s from BankruptPlayers"), *Player->GetName());
+	}
+}
+
+void APizzaGameState::UpdateBankruptPlayers(float DeltaGameTime)
+{
+	for (auto& Pair : BankruptPlayers)
+	{
+		Pair.Value += DeltaGameTime;
+
+		if (Pair.Value > MaxBankruptcyTime)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Bankrupting Player %s"), *Pair.Key->GetName());
+			Pair.Key->OnBankruptcyMaxed();
+		}
+	}
 }

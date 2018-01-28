@@ -64,8 +64,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Handles minute/day/month incrementation
+	// Returns in-game time passed this update
 	UFUNCTION(BlueprintCallable, Category = "Time")
-		void UpdateGameTime(float DeltaTime);
+		float UpdateGameTime(float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, Category = "Time")
 		bool IsWeekend();
@@ -81,6 +82,13 @@ public:
 	// Assume's Seasons map is sorted
 	UFUNCTION(BlueprintCallable, Category = "Time")
 		ESeason GetSeason();
+
+	UFUNCTION(BlueprintCallable, Category = "Fund Management")
+		void UpdatePlayerBankruptcy(APizzaPlayer* Player, 
+			bool EnteringBankruptcy = true);
+
+	UFUNCTION(BlueprintCallable, Category = "Fund Management")
+		void UpdateBankruptPlayers(float DeltaGameTime);
 
 	// Mainly for debugging
 	UFUNCTION(BlueprintCallable, Category = "Time")
@@ -167,12 +175,23 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time|Parameters")
 		TMap<ESeason, uint8> Seasons;
 
+	// { Player : Bankruptcy Duration }
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Fund Management")
+		TMap<APizzaPlayer*, float> BankruptPlayers;
+
+	// Max Time a player can be Bankrupt
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Fund Management",
+		META = (ClampMin = 0.0f))
+		float MaxBankruptcyTime = 5760.0f;
+
 	// How much $/mo upkeep is per tower per player
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Upkeep")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Fund Management")
 		int32 PerNodeUpkeep = 100;
 
 	// Scans for one at the beginning of the game; or will, eventually..
 	// TODO: Move sun across the sky
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Environment")
 		ADirectionalLight* SunLight;
+
+
 };
