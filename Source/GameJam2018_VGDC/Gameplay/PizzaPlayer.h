@@ -29,6 +29,8 @@ protected:
 
 	bool AlreadyBankrupt = false;
 
+	bool AssertHasGameState();
+
 public:
 	APizzaPlayer();
 	virtual void Tick(float DeltaTime) override;

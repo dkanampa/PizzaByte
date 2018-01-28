@@ -39,17 +39,24 @@ void APizzaGameState::BeginPlay()
 
 void APizzaGameState::PostBeginPlay()
 {
+	UE_LOG(LogTemp, Log, TEXT("Calling PostBeginPlay..."));
+
 	HasHadFirstTick = true;
 
 	/** Assign Player Values */
-	TArray<AActor*> Players;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APizzaPlayer::StaticClass(), Players);
+	TArray<AActor*> PlayerActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APizzaPlayer::StaticClass(), PlayerActors);
 
-	for(AActor* PlayerActor : Players)
+	for(AActor* PlayerActor : PlayerActors)
 	{
-		Cast<APizzaPlayer>(PlayerActor)->GameState = this;
-		Cast<APizzaPlayer>(PlayerActor)->OrderManager = OrderManager;
-		Cast<APizzaPlayer>(PlayerActor)->LevelManager = LevelManager;
+		APizzaPlayer* Player = Cast<APizzaPlayer>(PlayerActor);
+		Player->GameState = this;
+		Player->OrderManager = OrderManager;
+		Player->LevelManager = LevelManager;
+
+		Players.Add(Player);
+
+		UE_LOG(LogTemp, Log, TEXT("GameState added & initialized Player %s"), *Player->GetName());
 	}
 }
 
@@ -250,15 +257,23 @@ FString APizzaGameState::GetTimestamp(bool IncludeTimeOfDay)
 
 void APizzaGameState::UpdatePlayerBankruptcy(APizzaPlayer* Player, bool EnteringBankruptcy)
 {
+	if (Player == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Weird error that should never happen! Error Code: Nuts!"));
+		return;
+	}
+
 	if (EnteringBankruptcy) 
 	{
-		BankruptPlayers.Add(Player, 0.0f);
 		UE_LOG(LogTemp, Log, TEXT("Adding Player %s to BankruptPlayers"), *Player->GetName());
+		BankruptPlayers.Add(Player, 0.0f);
+		//BankruptPlayers[Player] = 0.0f;
+		//BankruptPlayers.Emplace(Player, 0.0f);
 	}
 	else 
 	{
-		BankruptPlayers.Remove(Player);
 		UE_LOG(LogTemp, Log, TEXT("Removing Player %s from BankruptPlayers"), *Player->GetName());
+		BankruptPlayers.Remove(Player);
 	}
 }
 
@@ -270,7 +285,7 @@ void APizzaGameState::UpdateBankruptPlayers(float DeltaGameTime)
 
 		if (Pair.Value > MaxBankruptcyTime)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Bankrupting Player %s"), *Pair.Key->GetName());
+			UE_LOG(LogTemp, Log, TEXT("Player %s has been bankrupt too long and must die!"), *Pair.Key->GetName());
 			Pair.Key->OnBankruptcyMaxed();
 		}
 	}

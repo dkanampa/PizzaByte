@@ -176,11 +176,11 @@ public:
 		TMap<ESeason, uint8> Seasons;
 
 	// { Player : Bankruptcy Duration }
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Fund Management")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Fund Management")
 		TMap<APizzaPlayer*, float> BankruptPlayers;
 
 	// Max Time a player can be Bankrupt
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Fund Management",
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Fund Management",
 		META = (ClampMin = 0.0f))
 		float MaxBankruptcyTime = 5760.0f;
 
