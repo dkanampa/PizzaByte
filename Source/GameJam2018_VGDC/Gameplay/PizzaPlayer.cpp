@@ -107,3 +107,41 @@ int32 APizzaPlayer::GetOwnedNodesSizeInDistrict(FDistrict * District)
 	return count;
 }
 
+void APizzaPlayer::OnBankruptcyMaxed()
+{
+	UE_LOG(LogTemp, Log, TEXT("Player %s just found out they've been bankrupt too long!!"),
+		*GetName());
+}
+
+void APizzaPlayer::AddOrRemoveFunds(int32 Amount)
+{
+	Funds += Amount;
+
+	if (!AssertHasGameState()) return;
+
+	// If we JUST went bankrupt
+	if (Funds < 0 && !AlreadyBankrupt)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Player %s has gone bankrupt!"), *GetName());
+		GameState->UpdatePlayerBankruptcy(this);
+	}
+	else if (Funds > 0 && AlreadyBankrupt)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Player %s has left bankruptcy!"), *GetName());
+		GameState->UpdatePlayerBankruptcy(this, false);
+	}
+	
+	AlreadyBankrupt = Funds < 0;
+}
+
+int32 APizzaPlayer::GetFunds()
+{
+	return Funds;
+}
+
+bool APizzaPlayer::AssertHasGameState()
+{
+	UE_CLOG(GameState == nullptr, LogTemp, Error, 
+		TEXT("AssertHasGameState failed for Player %s"), *GetName());
+	return GameState != nullptr;
+}

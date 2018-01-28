@@ -39,17 +39,24 @@ void APizzaGameState::BeginPlay()
 
 void APizzaGameState::PostBeginPlay()
 {
+	UE_LOG(LogTemp, Log, TEXT("Calling PostBeginPlay..."));
+
 	HasHadFirstTick = true;
 
 	/** Assign Player Values */
-	TArray<AActor*> Players;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APizzaPlayer::StaticClass(), Players);
+	TArray<AActor*> PlayerActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APizzaPlayer::StaticClass(), PlayerActors);
 
-	for(AActor* PlayerActor : Players)
+	for(AActor* PlayerActor : PlayerActors)
 	{
-		Cast<APizzaPlayer>(PlayerActor)->GameState = this;
-		Cast<APizzaPlayer>(PlayerActor)->OrderManager = OrderManager;
-		Cast<APizzaPlayer>(PlayerActor)->LevelManager = LevelManager;
+		APizzaPlayer* Player = Cast<APizzaPlayer>(PlayerActor);
+		Player->GameState = this;
+		Player->OrderManager = OrderManager;
+		Player->LevelManager = LevelManager;
+
+		Players.Add(Player);
+
+		UE_LOG(LogTemp, Log, TEXT("GameState added & initialized Player %s"), *Player->GetName());
 	}
 }
 
@@ -126,10 +133,12 @@ void APizzaGameState::Tick(float DeltaTime)
 	if (HasHadFirstTick == false)
 		PostBeginPlay();
 
-	UpdateGameTime(DeltaTime);
+	float PassedTime = UpdateGameTime(DeltaTime);
+
+	UpdateBankruptPlayers(PassedTime);
 }
 
-void APizzaGameState::UpdateGameTime(float DeltaTime)
+float APizzaGameState::UpdateGameTime(float DeltaTime)
 {
 	TimeOfDay += DeltaTime * TimeSpeed;
 
@@ -181,6 +190,8 @@ void APizzaGameState::UpdateGameTime(float DeltaTime)
 
 		UE_LOG(LogTemp, Log, TEXT("Happy new year, %d!"), Year);
 	}
+
+	return DeltaTime * TimeSpeed;
 }
 
 bool APizzaGameState::IsWeekend()
@@ -230,7 +241,7 @@ void APizzaGameState::OnNewMonth()
 
 	for (APizzaPlayer* Player : Players)
 	{
-		Player->Funds -= Player->Nodes.Num() * PerNodeUpkeep;
+		Player->AddOrRemoveFunds(Player->Nodes.Num() * PerNodeUpkeep * -1);
 		UE_LOG(LogTemp, Log, TEXT("This month's upkeep for player %s: %d (%d towers * %d$/mo)"),
 			*Player->GetName(), Player->Nodes.Num() * PerNodeUpkeep, Player->Nodes.Num(), PerNodeUpkeep);
 	}
@@ -242,4 +253,40 @@ FString APizzaGameState::GetTimestamp(bool IncludeTimeOfDay)
 		return FString::Printf(TEXT("%07.2f:%02d/%02d/%02d/%04d"), TimeOfDay, Day, Week, Month, Year);
 	else
 		return FString::Printf(TEXT("%02d/%02d/%02d/%04d"), Day, Week, Month, Year);
+}
+
+void APizzaGameState::UpdatePlayerBankruptcy(APizzaPlayer* Player, bool EnteringBankruptcy)
+{
+	if (Player == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Weird error that should never happen! Error Code: Nuts!"));
+		return;
+	}
+
+	if (EnteringBankruptcy) 
+	{
+		UE_LOG(LogTemp, Log, TEXT("Adding Player %s to BankruptPlayers"), *Player->GetName());
+		BankruptPlayers.Add(Player, 0.0f);
+		//BankruptPlayers[Player] = 0.0f;
+		//BankruptPlayers.Emplace(Player, 0.0f);
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Log, TEXT("Removing Player %s from BankruptPlayers"), *Player->GetName());
+		BankruptPlayers.Remove(Player);
+	}
+}
+
+void APizzaGameState::UpdateBankruptPlayers(float DeltaGameTime)
+{
+	for (auto& Pair : BankruptPlayers)
+	{
+		Pair.Value += DeltaGameTime;
+
+		if (Pair.Value > MaxBankruptcyTime)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Player %s has been bankrupt too long and must die!"), *Pair.Key->GetName());
+			Pair.Key->OnBankruptcyMaxed();
+		}
+	}
 }
