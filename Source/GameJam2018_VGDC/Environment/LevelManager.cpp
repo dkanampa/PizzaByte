@@ -26,3 +26,19 @@ void ALevelManager::Tick(float DeltaTime)
 
 
 }
+
+void ALevelManager::VerifyHierarchy()
+{
+	for (FDistrict& District : Districts)
+	{
+		for (FSector& Sector : District.Sectors)
+		{
+			for (FBlock& Block : Sector.Blocks)
+			{
+				Block.ParentSector = &Sector;
+			}
+
+			Sector.ParentDistrict = &District;
+		}
+	}
+}

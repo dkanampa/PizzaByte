@@ -33,5 +33,6 @@ public:
 	FSector* ParentSector;
 
 	// Pointer means we can have it null indicating no tower present
-	APizzaNode* OccupyingNode;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		APizzaNode* OccupyingNode;
 };

@@ -20,6 +20,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<FBlock> Blocks;
 
+	// DEPRECATED AND LIKELY NOT SET
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		bool HasPizzaNode;
 

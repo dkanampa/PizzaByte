@@ -26,6 +26,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Makes sure parent pointers point to parents
+	UFUNCTION(BlueprintCallable)
+		void VerifyHierarchy();
+
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "3D")
 		TArray<FDistrict> Districts;
 
