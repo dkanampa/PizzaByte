@@ -34,7 +34,7 @@ void APizzaGameState::BeginPlay()
 
 	FindOrSpawnOrderManager();
 	FindOrSpawnLevelManager();
-	
+
 }
 
 void APizzaGameState::PostBeginPlay()
@@ -146,7 +146,7 @@ float APizzaGameState::UpdateGameTime(float DeltaTime)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Time: %f"), TimeOfDay);
 		TickPreviousPeriodOfDay = GetPeriodOfDay();
-	}		
+	}
 
 	if (TimeOfDay >= 1440.0f)
 	{
@@ -168,7 +168,7 @@ float APizzaGameState::UpdateGameTime(float DeltaTime)
 
 		if (TickPreviousSeason != GetSeason())
 		{
-			UE_LOG(LogTemp, Log, TEXT("Welcome to a new season: %s!"), 
+			UE_LOG(LogTemp, Log, TEXT("Welcome to a new season: %s!"),
 				*UsefulFunctions::EnumToString(FString("ESEason"), GetSeason()));
 			TickPreviousSeason = GetSeason();
 		}
@@ -263,14 +263,14 @@ void APizzaGameState::UpdatePlayerBankruptcy(APizzaPlayer* Player, bool Entering
 		return;
 	}
 
-	if (EnteringBankruptcy) 
+	if (EnteringBankruptcy)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Adding Player %s to BankruptPlayers"), *Player->GetName());
 		BankruptPlayers.Add(Player, 0.0f);
 		//BankruptPlayers[Player] = 0.0f;
 		//BankruptPlayers.Emplace(Player, 0.0f);
 	}
-	else 
+	else
 	{
 		UE_LOG(LogTemp, Log, TEXT("Removing Player %s from BankruptPlayers"), *Player->GetName());
 		BankruptPlayers.Remove(Player);
@@ -286,7 +286,7 @@ void APizzaGameState::UpdateBankruptPlayers(float DeltaGameTime)
 		if (Pair.Value > MaxBankruptcyTime)
 		{
 			UE_LOG(LogTemp, Log, TEXT("Player %s has been bankrupt too long and must die!"), *Pair.Key->GetName());
-			Pair.Key->OnBankruptcyMaxed();
+			Pair.Key->OnBankruptcyMaxed_Implementation();
 		}
 	}
 }
