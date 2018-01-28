@@ -3,6 +3,7 @@
 #include "PizzaOrderManager.h"
 #include "PizzaGameState.h"
 #include "PizzaPlayer.h"
+#include "OrderPopup.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "../GenericUsefulFunctions.h"
 
@@ -183,7 +184,7 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 	return FOrder(ChosenTopping, OrderCost, ChosenBlock, GameState->TimeOfDay, ExpireTime);
 }
 
-void APizzaOrderManager::CompleteOrder(FOrder Order)
+void APizzaOrderManager::CompleteOrder(FOrder Order, bool Successful)
 {
 	// TODO
 }

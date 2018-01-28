@@ -15,6 +15,7 @@
 // Forward declare for circular dependencies
 class APizzaGameState;
 class APizzaPlayer;
+class AOrderPopup;
 
 /**
  * Singleton actor responsible for creating orders
@@ -89,10 +90,10 @@ public:
 	/**
 	 * Completes an order by removing it from the current
 	 * list of open orders.
+	 * @param Successful - whether this was completed by a player or it timed out
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Orders")
-		void CompleteOrder(FOrder Order);
-
+		void CompleteOrder(FOrder Order, bool Successful = true);
 
 	// Assigned by GameState when it spawns us
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
