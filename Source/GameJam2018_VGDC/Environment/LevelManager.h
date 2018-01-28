@@ -14,9 +14,6 @@ class GAMEJAM2018_VGDC_API ALevelManager : public AActor
 {
 	GENERATED_BODY()
 
-private:
-	bool HasHadFirstTick = false; // Used as a slightly-post-begin-play
-	
 public:	
 	// Sets default values for this actor's properties
 	ALevelManager();
@@ -29,15 +26,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	/*UFUNCTION(BlueprintCallable)
-		void SpawnNodeColliders();*/
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "3D")
 		TArray<FDistrict> Districts;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "3D")
-		FVector ColliderScale = FVector(1.0f, 1.0f, 2.0f);
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "3D")
-		TMap<UBoxComponent*, FBlock> BlockNodeColliders;
 };

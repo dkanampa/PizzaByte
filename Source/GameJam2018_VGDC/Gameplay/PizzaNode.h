@@ -32,5 +32,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		bool IsSelected = false;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		UCurveFloat* CostCurve;
+
 	FDistrict* ParentDistrict;
 };

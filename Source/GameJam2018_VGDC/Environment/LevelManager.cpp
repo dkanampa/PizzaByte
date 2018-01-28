@@ -25,30 +25,4 @@ void ALevelManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	/*if (!HasHadFirstTick)
-	{
-		HasHadFirstTick = true;
-		SpawnNodeColliders();
-	}*/
-
 }
-
-
-/*void ALevelManager::SpawnNodeColliders()
-{
-	for (FDistrict& District : Districts)
-	{
-		for (FSector& Sector : District.Sectors)
-		{
-			for (FBlock& Block : Sector.Blocks)
-			{
-				for (FVector& NodeLoc : Block.NodeLocations)
-				{
-					UBoxComponent* Collider = GetWorld()->SpawnActor<UBoxComponent>(FVector(NodeLoc), FRotator());
-					Collider->SetWorldScale3D(ColliderScale);
-					BlockNodeColliders.Add(Collider, Block);
-				}
-			}
-		}
-	}
-}*/
