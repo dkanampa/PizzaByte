@@ -8,6 +8,7 @@
 #include "LevelManager.generated.h"
 
 class UBoxComponent;
+class APizzaGameState;
 
 UCLASS()
 class GAMEJAM2018_VGDC_API ALevelManager : public AActor
@@ -30,6 +31,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void VerifyHierarchy();
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Management")
+		APizzaGameState* GameState;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "3D")
 		TArray<FDistrict> Districts;

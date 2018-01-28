@@ -58,7 +58,7 @@ public:
 
 	/**
 	 * Can take negative or positive values.
-	 * Notifies the GameState when bankruptcy has begun/finished so it can 
+	 * Notifies the GameState when bankruptcy has begun/finished so it can
 	 *   time us accordingly
 	 */
 	UFUNCTION(BlueprintCallable)
@@ -71,7 +71,7 @@ public:
 	 * Called once our funds are negative for more than MaxBankruptcyTime
 	 *   minutes
 	 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Fund Management")
 		void OnBankruptcyMaxed();
 
 	// Assigned by GameState immediately after begin play
@@ -90,7 +90,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere,
 		META = (ClampMin = 0.0f, UIMax = 5760.0f))
 		float MaxBankruptcyTime = 2880.0f;
-	
+
 	// Do not change manually! Use add/remove funds!
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 		int32 Funds;
