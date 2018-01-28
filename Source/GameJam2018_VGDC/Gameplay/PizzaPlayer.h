@@ -25,8 +25,6 @@ class GAMEJAM2018_VGDC_API APizzaPlayer : public APawn
 protected:
 	virtual void BeginPlay() override;
 
-	int32 Funds = 0;
-
 	bool AlreadyBankrupt = false;
 
 	bool AssertHasGameState();
@@ -93,10 +91,9 @@ public:
 		META = (ClampMin = 0.0f, UIMax = 5760.0f))
 		float MaxBankruptcyTime = 2880.0f;
 	
-	// FUNDS ARE PRIVATE, USE ADD/REMOVEFUNDS AND GETFUNDS
-	// This is only here in case UI absolutely needs it for some reason
-	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	//	int32 Funds_READONLY;
+	// Do not change manually! Use add/remove funds!
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		int32 Funds;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<APizzaNode*> Nodes;
