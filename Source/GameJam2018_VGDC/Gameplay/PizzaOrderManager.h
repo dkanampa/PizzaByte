@@ -95,7 +95,7 @@ public:
 	 * @param Successful - whether this was completed by a player or it timed out
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Orders")
-		void CompleteOrder(FOrder Order, bool Successful = true);
+		void CompleteOrder(AOrderPopup* Order, bool Successful = true);
 
 	// Assigned by GameState when it spawns us
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")

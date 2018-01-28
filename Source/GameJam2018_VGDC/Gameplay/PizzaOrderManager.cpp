@@ -68,17 +68,19 @@ void APizzaOrderManager::Tick(float DeltaTime)
 	for (int i = 0; i < OpenOrders.Num(); i++)
 	{
 		if (OpenOrders[i] == nullptr)
-			UE_LOG(LogTemp, Error, TEXT("Expiring nullptr"));
+		{
+			UE_LOG(LogTemp, Error, TEXT("Can't expire nullptr"));
+			
+			OpenOrders.RemoveAt(i, 1, false); // i.e. don't shrink
+			i--;
+		}
+			
 
 		if (OpenOrders[i]->Order.ExpireTime < GameState->TimeOfDay)
 		{
-			//UE_LOG(LogTemp, Log, TEXT("Expiring Order for %s pizza"),
-			//	*UsefulFunctions::EnumToString(FString("EPizzaTopping"), OpenOrders[i].PizzaType));
-
 			UE_LOG(LogTemp, Log, TEXT("Expiring order %s"), *OpenOrders[i]->GetName());
 
-			OpenOrders.RemoveAt(i, 1, false); // i.e. don't shrink
-			i--;
+			CompleteOrder(OpenOrders[i], false);
 		}
 	}
 		
@@ -200,9 +202,10 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 	return FOrder(ChosenTopping, OrderCost, ChosenBlock, GameState->TimeOfDay, ExpireTime);
 }
 
-void APizzaOrderManager::CompleteOrder(FOrder Order, bool Successful)
+void APizzaOrderManager::CompleteOrder(AOrderPopup* Order, bool Successful)
 {
-	// TODO
+	OpenOrders.Remove(Order);
+	Order->Destroy();
 }
 
 void APizzaOrderManager::GenerateCharacterSets()
