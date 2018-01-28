@@ -110,8 +110,11 @@ public:
 		META = (ClampMin = 0.0f, UIMax = 1440.0f))
 		float OrderGenerationFrequency = 30.0f;
 
+	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
+	//	TArray<FOrder> OpenOrders;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
-		TArray<FOrder> OpenOrders;
+		TArray<AOrderPopup*> OpenOrders;
 
 	// Defines order costs
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
