@@ -3,6 +3,7 @@
 #include "PizzaGameState.h"
 #include "PizzaOrderManager.h"
 #include "PizzaPlayer.h"
+#include "../Environment/LevelManager.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "../GenericUsefulFunctions.h"
@@ -28,17 +29,76 @@ void APizzaGameState::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OrderManager = GetWorld()->SpawnActor<APizzaOrderManager>(OrderManagerClass);
 
-	if (OrderManager == nullptr)
+	FindOrSpawnOrderManager();
+	FindOrSpawnLevelManager();
+	
+}
+
+void APizzaGameState::FindOrSpawnOrderManager()
+{
+	TArray<AActor*> OrderManagerCandidates;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APizzaOrderManager::StaticClass(), OrderManagerCandidates);
+
+	if (OrderManagerCandidates.Num() == 0)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Hey! This is a weird error that should never occur! Error code: BALLS!"));
+		UE_LOG(LogTemp, Log, TEXT("No OrderManagers found in level by GameState. That's good; we'll spawn our own."));
+
+		if (OrderManagerClass != nullptr)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Spawning from class %s"), *OrderManagerClass->GetName());
+			OrderManager = GetWorld()->SpawnActor<APizzaOrderManager>(OrderManagerClass);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("OrderManagerClass not provided; falling back on default class."));
+			OrderManager = GetWorld()->SpawnActor<APizzaOrderManager>();
+		}
+			UE_LOG(LogTemp, Error, TEXT(""));
+	}
+	else if (OrderManagerCandidates.Num() == 1)
+	{
+		UE_LOG(LogTemp, Log, TEXT("OrderManager found by GameState in level already. "));
+
+		OrderManager = Cast<APizzaOrderManager>(OrderManagerCandidates[0]);
 	}
 	else
 	{
-		OrderManager->GameState = this;
+		OrderManager = Cast<APizzaOrderManager>(OrderManagerCandidates[0]);
+
+		UE_LOG(LogTemp, Warning, TEXT("More than one OrderManagers found by GameState. This will cause undefined behaviour. Selecting first (%s)"),
+			*OrderManager->GetName());
 	}
-	
+
+	OrderManager->GameState = this;
+}
+
+void APizzaGameState::FindOrSpawnLevelManager()
+{
+	TArray<AActor*> LevelManagerCandidates;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALevelManager::StaticClass(), LevelManagerCandidates);
+
+	if (LevelManagerCandidates.Num() == 0)
+	{
+		UE_LOG(LogTemp, Log, TEXT("No LevelManagers found in level by GameState. That's good; we'll spawn our own."));
+
+		LevelManager = GetWorld()->SpawnActor<ALevelManager>();
+	}
+	else if (LevelManagerCandidates.Num() == 1)
+	{
+		UE_LOG(LogTemp, Log, TEXT("LevelManager found by GameState in level already. "));
+
+		LevelManager = Cast<ALevelManager>(LevelManagerCandidates[0]);
+	}
+	else
+	{
+		LevelManager = Cast<ALevelManager>(LevelManagerCandidates[0]);
+
+		UE_LOG(LogTemp, Warning, TEXT("More than one LevelManagers found by GameState. This will cause undefined behaviour. Selecting first (%s)"),
+			*LevelManager->GetName());
+	}
+
+	//LevelManager->GameState = this;
 }
 
 void APizzaGameState::Tick(float DeltaTime)
