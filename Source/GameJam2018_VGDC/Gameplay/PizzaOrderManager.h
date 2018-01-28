@@ -7,6 +7,7 @@
 #include "PizzaPlayer.h"
 #include "../Environment/FDistrict.h"
 #include "FOrder.h"
+#include "FCharsetFlags.h"
 
 #include "GameFramework/Actor.h"
 #include "PizzaOrderManager.generated.h"
@@ -69,12 +70,12 @@ public:
 	/**
 	 * Generates a randomly long string of garbage whose length depends on
 	 *   the distance the code has to travel.
-	 * TODO Also have the different node toppings affect the character set -
+	 * Also different node toppings affect the character set:
 	 *   cheese is just [a-z], pepperoni is [a-z][A-Z], sausage is 
 	 *   [a-z]/!@#$%^&*(), pineapple is !@#$%^&*()/[0-9]...
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Pizza Code")
-		FString GeneratePizzaCode(float Distance);
+		FString GeneratePizzaCode(float Distance, TArray<APizzaNode*> Nodes);
 
 	/**
 	 * Generates our lowercase, uppercase, numeric, and special Character Sets
@@ -140,5 +141,10 @@ public:
 	// REMEMBER FOR GOD'S SAKE TO PASS BY REFERENCE!!!!!!!!!!
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Environment")
 		TArray<FDistrict> Districts;
+
+	// Map of what set of characters a node of the given topping will
+	//   add to the generation set
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Pizza Code")
+		TMap<EPizzaTopping, FCharsetFlags> ToppingCodeCharacterSets;
 
 };
