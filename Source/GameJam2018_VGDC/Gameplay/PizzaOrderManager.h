@@ -32,6 +32,15 @@ private:
 	int32 PizzaSeed = 0;
 	FRandomStream OrderRNG;
 	FRandomStream PizzaCodeRNG;
+
+	// Lower case letters; doesn't include null terminator, so don't print!
+	TArray<TCHAR> CharSetLowercase;
+	// Upper case letters; doesn't include null terminator, so don't print!
+	TArray<TCHAR> CharSetUppercase;
+	// Numeric characters; doesn't include null terminator, so don't print!
+	TArray<TCHAR> CharSetNumeric;
+	// Non-alphanumeric characters; doesn't include null terminator, so don't print!
+	TArray<TCHAR> CharSetSpecial;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -64,8 +73,15 @@ public:
 	 *   cheese is just [a-z], pepperoni is [a-z][A-Z], sausage is 
 	 *   [a-z]/!@#$%^&*(), pineapple is !@#$%^&*()/[0-9]...
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Orders")
+	UFUNCTION(BlueprintCallable, Category = "Pizza Code")
 		FString GeneratePizzaCode(float Distance);
+
+	/**
+	 * Generates our lowercase, uppercase, numeric, and special Character Sets
+	 *   for pizza code generation
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Pizza Code")
+		void GenerateCharacterSets();
 
 	// Assigned by GameState when it spawns us
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")

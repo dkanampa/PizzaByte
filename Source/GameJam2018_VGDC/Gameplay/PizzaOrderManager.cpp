@@ -21,6 +21,8 @@ void APizzaOrderManager::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GenerateCharacterSets();
+
 	OrderRNG = FRandomStream(OrderSeed);
 	PizzaCodeRNG = FRandomStream(PizzaSeed);
 
@@ -180,6 +182,87 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 	return FOrder(ChosenTopping, OrderCost, ChosenBlock, GameState->TimeOfDay, ExpireTime);
 }
 
+void APizzaOrderManager::GenerateCharacterSets()
+{
+	/*
+	TArray<TCHAR> Everything;
+	Everything.Init(' ', 256);
+	Everything[255] = '\0';
+
+	for (int i = 0; i < 255; i++)
+	{
+	Everything[i] = ' ' + i;
+	}
+
+	FString EverythingStr = Everything.GetData();
+
+	UE_LOG(LogTemp, Log, TEXT("00        10        20        30        40        50        60        70        80        90        "));
+	UE_LOG(LogTemp, Log, TEXT("0123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789"));
+	UE_LOG(LogTemp, Log, TEXT("%s"), *EverythingStr);
+	*/
+
+	// All characters are offset by ' '
+	// a-z: [65, 90]
+	// A-Z: [33, 58]
+	// 0-9: [16, 25]
+	// Special: [1, 15] + [26, 32] + [59, 64] + [91, 94]
+
+	// a-z: ' ' + [65, 90]
+	CharSetLowercase.Init(' ', 90 - 65 + 1);
+
+	for (int i = 0; i < 90 - 65 + 1; i++)
+		CharSetLowercase[i] = ' ' + i + 65;
+
+
+	// A-Z: ' ' + [33, 58]
+	CharSetUppercase.Init(' ', 58 - 33 + 1);
+
+	for (int i = 0; i < 58 - 33 + 1; i++)
+		CharSetUppercase[i] = ' ' + i + 33;
+
+
+	// 0-9: ' ' + [16, 25]
+	CharSetNumeric.Init(' ', 25 - 16 + 1);
+
+	for (int i = 0; i < 25 - 16 + 1; i++)
+		CharSetNumeric[i] = ' ' + i + 16;
+
+
+	// Special: ' ' + ([1, 15], [26, 32], [59, 64], [91, 94])
+	CharSetSpecial.Init(' ', (15 - 1) + (32 - 26) + (64 - 59) + (94 - 91) + 4);
+	int32 SpecialIdx = 0;
+
+	for (int i = 0; i < 15 - 1 + 1; i++)
+		CharSetSpecial[SpecialIdx++] = ' ' + i + 1;
+
+	for (int i = 0; i < 32 - 26 + 1; i++)
+		CharSetSpecial[SpecialIdx++] = ' ' + i + 26;
+
+	for (int i = 0; i < 64 - 59 + 1; i++)
+		CharSetSpecial[SpecialIdx++] = ' ' + i + 59;
+
+	for (int i = 0; i < 94 - 91 + 1; i++)
+		CharSetSpecial[SpecialIdx++] = ' ' + i + 91;
+
+	/*
+	CharSetLowercase.Add('\0');
+	FString Lowercase = CharSetLowercase.GetData();
+	UE_LOG(LogTemp, Log, TEXT("Lowercase: (%s)"), *Lowercase);
+
+	CharSetUppercase.Add('\0');
+	FString Uppercase = CharSetUppercase.GetData();
+	UE_LOG(LogTemp, Log, TEXT("Uppercase: (%s)"), *Uppercase);
+
+	CharSetNumeric.Add('\0');
+	FString Numeric = CharSetNumeric.GetData();
+	UE_LOG(LogTemp, Log, TEXT("Numeric: (%s)"), *Numeric);
+
+	CharSetSpecial.Add('\0');
+	FString Special = CharSetSpecial.GetData();
+	UE_LOG(LogTemp, Log, TEXT("Special: (%s)"), *Special);
+	*/
+}
+
 FString APizzaOrderManager::GeneratePizzaCode(float Distance)
 {
 	int32 StringLength = FMath::FloorToInt(Distance * DifficultyModifier);
@@ -188,7 +271,10 @@ FString APizzaOrderManager::GeneratePizzaCode(float Distance)
 	// http://en.cppreference.com/w/cpp/language/ascii
 	TArray<TCHAR> GarbledString;
 	GarbledString.Init(' ', StringLength + 1);
+	GarbledString.Init(' ', 126 - 32);
 	GarbledString[StringLength] = '\0';
+
+	
 
 	for (int i = 0; i < StringLength; i++)
 	{
