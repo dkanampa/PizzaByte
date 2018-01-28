@@ -12,6 +12,7 @@
 // Forward declare for circular dependencies
 class APizzaOrderManager;
 class APizzaPlayer;
+class ALevelManager;
 
 UENUM(BlueprintType)
 enum class EPeriodOfDay : uint8
@@ -46,7 +47,11 @@ private:
 
 	// Used for debug logging
 	ESeason TickPreviousSeason = ESeason::Winter;
+
+	void FindOrSpawnOrderManager();
 	
+	void FindOrSpawnLevelManager();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -83,6 +88,10 @@ public:
 	// Spawned on BeginPlay
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
 		APizzaOrderManager* OrderManager;
+
+	// Spawned on BeginPlay
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
+		ALevelManager* LevelManager;
 
 	// All players in the game; automatically queried for at the start of the 
 	//   game
