@@ -3,6 +3,7 @@
 #include "PizzaOrderManager.h"
 #include "PizzaGameState.h"
 #include "PizzaPlayer.h"
+#include "OrderPopup.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "../GenericUsefulFunctions.h"
 
@@ -64,10 +65,15 @@ void APizzaOrderManager::Tick(float DeltaTime)
 	// Expire old orders
 	for (int i = 0; i < OpenOrders.Num(); i++)
 	{
-		if (OpenOrders[i].ExpireTime < GameState->TimeOfDay)
+		if (OpenOrders[i] == nullptr)
+			UE_LOG(LogTemp, Error, TEXT("Expiring nullptr"));
+
+		if (OpenOrders[i]->Order.ExpireTime < GameState->TimeOfDay)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Expiring Order for %s pizza"),
-				*UsefulFunctions::EnumToString(FString("EPizzaTopping"), OpenOrders[i].PizzaType));
+			//UE_LOG(LogTemp, Log, TEXT("Expiring Order for %s pizza"),
+			//	*UsefulFunctions::EnumToString(FString("EPizzaTopping"), OpenOrders[i].PizzaType));
+
+			UE_LOG(LogTemp, Log, TEXT("Expiring order %s"), *OpenOrders[i]->GetName());
 
 			OpenOrders.RemoveAt(i, 1, false); // i.e. don't shrink
 			i--;
@@ -88,7 +94,9 @@ void APizzaOrderManager::GenerateNewOrders()
 			UE_LOG(LogTemp, Log, TEXT("Placing order in District %s..."), 
 				*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type));
 
-			OpenOrders.Add(GenerateOrder(District));
+			AOrderPopup* Popup = GetWorld()->SpawnActor<AOrderPopup>();
+			Popup->Order = GenerateOrder(District);
+			OpenOrders.Add(Popup);
 		}
 	}
 }
@@ -183,7 +191,7 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 	return FOrder(ChosenTopping, OrderCost, ChosenBlock, GameState->TimeOfDay, ExpireTime);
 }
 
-void APizzaOrderManager::CompleteOrder(FOrder Order)
+void APizzaOrderManager::CompleteOrder(FOrder Order, bool Successful)
 {
 	// TODO
 }
