@@ -7,13 +7,12 @@
 #include "EPizzaTopping.h"
 #include "PizzaNode.generated.h"
 
+struct FDistrict;
+
 UCLASS()
 class GAMEJAM2018_VGDC_API APizzaNode : public AActor
 {
 	GENERATED_BODY()
-public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-		EPizzaTopping Topping;
 
 public:
 	// Sets default values for this actor's properties
@@ -26,4 +25,12 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		EPizzaTopping Topping;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		bool IsSelected = false;
+
+	FDistrict* ParentDistrict;
 };

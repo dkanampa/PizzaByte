@@ -24,6 +24,10 @@ public:
 
 	FDistrict(EDistrictType _Type) :Type(_Type) {};
 
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FName DistrictName;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TArray<FSector> Sectors;
 
@@ -48,6 +52,9 @@ public:
 	//   thus will never be ordered
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TMap<EPizzaTopping, float> ToppingPreferences;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		int32 PropertyRate;
 
 private:
 	// etc..
