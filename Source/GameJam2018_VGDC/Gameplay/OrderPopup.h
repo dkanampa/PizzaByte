@@ -25,6 +25,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+	USceneComponent* OriginPlaceholder;
 	//virtual void Tick(float DeltaTime) override;
 
 	// Remember to pass by reference!

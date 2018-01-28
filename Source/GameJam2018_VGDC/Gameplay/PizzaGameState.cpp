@@ -23,6 +23,8 @@ APizzaGameState::APizzaGameState()
 	Seasons.Add(ESeason::Summer, 2);
 	Seasons.Add(ESeason::Fall,   4);
 	Seasons.Add(ESeason::Winter, 6);
+
+	OrderManagerClass = APizzaOrderManager::StaticClass();
 }
 
 void APizzaGameState::BeginPlay()

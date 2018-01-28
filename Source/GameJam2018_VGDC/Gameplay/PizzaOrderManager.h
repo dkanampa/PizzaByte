@@ -114,6 +114,9 @@ public:
 	//	TArray<FOrder> OpenOrders;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
+		TSubclassOf<AOrderPopup> OrderPopupClass;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
 		TArray<AOrderPopup*> OpenOrders;
 
 	// Defines order costs

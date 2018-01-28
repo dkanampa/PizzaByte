@@ -21,6 +21,8 @@ APizzaOrderManager::APizzaOrderManager()
 	ToppingCodeCharacterSets.Add(EPizzaTopping::Pepperoni, FCharsetFlags(true,  true,  false, false));
 	ToppingCodeCharacterSets.Add(EPizzaTopping::Sausage,   FCharsetFlags(true,  true,  true,  false));
 	ToppingCodeCharacterSets.Add(EPizzaTopping::Pineapple, FCharsetFlags(true,  false, true,  true));
+
+	OrderPopupClass = AOrderPopup::StaticClass();
 }
 
 void APizzaOrderManager::BeginPlay()
@@ -94,8 +96,9 @@ void APizzaOrderManager::GenerateNewOrders()
 			UE_LOG(LogTemp, Log, TEXT("Placing order in District %s..."), 
 				*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type));
 
-			AOrderPopup* Popup = GetWorld()->SpawnActor<AOrderPopup>();
+			AOrderPopup* Popup = GetWorld()->SpawnActor<AOrderPopup>(OrderPopupClass);
 			Popup->Order = GenerateOrder(District);
+			Popup->SetActorLocation(Popup->Order.Block.GetBlockCenter());
 			OpenOrders.Add(Popup);
 		}
 	}
