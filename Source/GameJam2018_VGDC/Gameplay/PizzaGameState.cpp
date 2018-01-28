@@ -37,6 +37,22 @@ void APizzaGameState::BeginPlay()
 	
 }
 
+void APizzaGameState::PostBeginPlay()
+{
+	HasHadFirstTick = true;
+
+	/** Assign Player Values */
+	TArray<AActor*> Players;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APizzaPlayer::StaticClass(), Players);
+
+	for(AActor* PlayerActor : Players)
+	{
+		Cast<APizzaPlayer>(PlayerActor)->GameState = this;
+		Cast<APizzaPlayer>(PlayerActor)->OrderManager = OrderManager;
+		Cast<APizzaPlayer>(PlayerActor)->LevelManager = LevelManager;
+	}
+}
+
 void APizzaGameState::FindOrSpawnOrderManager()
 {
 	TArray<AActor*> OrderManagerCandidates;
@@ -106,6 +122,9 @@ void APizzaGameState::FindOrSpawnLevelManager()
 void APizzaGameState::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (HasHadFirstTick == false)
+		PostBeginPlay();
 
 	UpdateGameTime(DeltaTime);
 }

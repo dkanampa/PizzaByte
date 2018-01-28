@@ -52,6 +52,10 @@ private:
 	
 	void FindOrSpawnLevelManager();
 
+	bool HasHadFirstTick = false; // Used as a slightly-post-begin-play
+
+	void PostBeginPlay();
+
 protected:
 	virtual void BeginPlay() override;
 
