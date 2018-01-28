@@ -53,6 +53,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TMap<EPizzaTopping, float> ToppingPreferences;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		int32 PropertyRate;
+
 private:
 	// etc..
 

@@ -4,6 +4,7 @@
 #include "PizzaOrderManager.h"
 #include "PizzaPlayer.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "../GenericUsefulFunctions.h"
 
 
@@ -144,11 +145,13 @@ ESeason APizzaGameState::GetSeason()
 
 void APizzaGameState::OnNewMonth()
 {
+	UE_LOG(LogTemp, Log, TEXT("Charging %d players for upkeep..."), Players.Num());
+
 	for (APizzaPlayer* Player : Players)
 	{
 		Player->Funds -= Player->Nodes.Num() * PerNodeUpkeep;
-		UE_LOG(LogTemp, Log, TEXT("This month's upkeep for player %s: %d"),
-			*Player->GetName(), Player->Nodes.Num() * PerNodeUpkeep);
+		UE_LOG(LogTemp, Log, TEXT("This month's upkeep for player %s: %d (%d towers * %d$/mo)"),
+			*Player->GetName(), Player->Nodes.Num() * PerNodeUpkeep, Player->Nodes.Num(), PerNodeUpkeep);
 	}
 }
 

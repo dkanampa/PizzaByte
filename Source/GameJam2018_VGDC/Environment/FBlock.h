@@ -15,6 +15,8 @@ public:
 
 	FBlock(FSector* _ParentSector) :ParentSector(_ParentSector) {};
 
+	FVector GetBlockCenter();
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "3D")
 		TArray<FVector> NodeLocations;
 

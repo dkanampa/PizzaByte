@@ -15,7 +15,6 @@ APizzaPlayer::APizzaPlayer()
 void APizzaPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // Called every frame
@@ -36,14 +35,25 @@ void APizzaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 bool APizzaPlayer::PurchaseTowerInSector(FSector * Sector, FBlock* ToPurchase,
 	EPizzaTopping ToppingToAdd)
 {
-	// Check if the sector is already occupied by a PizzaNode
-	if (Sector->HasPizzaNode) return false;
+	// Check if the sector is already occupied by a PizzaNode or
+	// if the player has insufficient funds
+	if (Sector->HasPizzaNode && PurchaseTowerWithFunds(ToPurchase)) return false;
 	// Else, mark that sector as occupied and create a new PizzaNode
 	Sector->HasPizzaNode = true;
 	APizzaNode node;
 	node.Topping = ToppingToAdd;
 	ToPurchase->OccupyingNode = &node;
 	return true;
+}
+
+// Returns if a player has enough Funds to purchase the requested Tower
+bool APizzaPlayer::PurchaseTowerWithFunds(FBlock* ToPurchase) {
+	int32 cost = GetOwnedNodesSizeInDistrict(ToPurchase->ParentSector->ParentDistrict) * ToPurchase->ParentSector->ParentDistrict->PropertyRate;
+	if (Funds - cost >= 0.0f) {
+		Funds -= cost;
+		return true;
+	}
+	return false;
 }
 
 bool APizzaPlayer::PurchaseDistrictPermit(FDistrict * District)
@@ -55,10 +65,26 @@ bool APizzaPlayer::PurchaseDistrictPermit(FDistrict * District)
 	return false;
 }
 
-// Pursues an order for the player
-bool APizzaPlayer::PursueOrder(FOrder& Order, TArray<APizzaNode*> PizzaNodes) {
-	// TODO
+bool APizzaPlayer::IsValidPath(EPizzaTopping Topping, TArray<APizzaNode*> Path)
+{
+	// Loop over all nodes and verify that they satisfy the Order
+	for (auto node : Path) {
+		if (node->Topping == Topping) return true;
+	}
 	return false;
+
+}
+
+// Pursues an order for the player
+bool APizzaPlayer::CheckOrder(TArray<APizzaNode*> Path, FString response)
+{
+	// Invalidate if the path does not satisfy the order
+	if (!APizzaPlayer::IsValidPath(CurrentOrder.PizzaType, Path) && CurrentOrder.PizzaCode != response) {
+		return false;
+	}
+	// Add payment to total funds
+	Funds += CurrentOrder.OrderCost;
+	return true;
 }
 
 // Returns if this player owns a certain district's permit
@@ -67,5 +93,16 @@ bool APizzaPlayer::hasBoughtSectorPermit(FDistrict* District) {
 		if (&Permit == District) return true;
 	}
 	return false;
+}
+
+// Returns the number of owned nodes in this district
+int32 APizzaPlayer::GetOwnedNodesSizeInDistrict(FDistrict * District)
+{
+	// Needs to be more concise
+	int32 count = 0;
+	for (auto pNode : Nodes) {
+		if (pNode->ParentDistrict == District) count++;
+	}
+	return count;
 }
 
