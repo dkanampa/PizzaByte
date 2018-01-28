@@ -21,9 +21,15 @@ void APizzaOrderManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	RNG = FRandomStream(Seed);
+	OrderRNG = FRandomStream(OrderSeed);
+	PizzaCodeRNG = FRandomStream(PizzaSeed);
 
 	OpenOrders.Reserve(32);
+
+	for (int i = 0; i < 8; i++)
+	{
+		GeneratePizzaCode(FMath::FRandRange(10.0f, 32.0f));
+	}
 }
 
 void APizzaOrderManager::Tick(float DeltaTime)
@@ -74,7 +80,7 @@ void APizzaOrderManager::GenerateNewOrders()
 	{
 		float OrderLikelihood = CalculateOrderLikelihood(District);
 
-		if (RNG.FRand() < OrderLikelihood)
+		if (OrderRNG.FRand() < OrderLikelihood)
 		{
 			UE_LOG(LogTemp, Log, TEXT("Placing order in District %s..."), 
 				*UsefulFunctions::EnumToString(FString("EDistrictType"), District.Type));
@@ -140,7 +146,7 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 	// Chooses the topping using the district's likelihoods, assuming they add
 	//   up to 1.0
 	// May or may not work; no time to explain, it's a game jam!
-	float RandomNumber = RNG.FRand();
+	float RandomNumber = OrderRNG.FRand();
 	float PreviousChancesSum = 0.0f;
 	for (auto& Elem : District.ToppingPreferences)
 	{
@@ -156,11 +162,11 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 		OrderCost = *ToppingCosts.Find(ChosenTopping);
 
 	/** Choose a sector and block */
-	FSector ChosenSector = UsefulFunctions::RandomElementInArray(District.Sectors, &RNG);
-	FBlock ChosenBlock = UsefulFunctions::RandomElementInArray(ChosenSector.Blocks, &RNG);
+	FSector ChosenSector = UsefulFunctions::RandomElementInArray(District.Sectors, &OrderRNG);
+	FBlock ChosenBlock = UsefulFunctions::RandomElementInArray(ChosenSector.Blocks, &OrderRNG);
 
 	/** Choose Expirey Time */
-	float ExpireDuration = RNG.FRandRange(ExpireTimeMinMax.X, ExpireTimeMinMax.Y);
+	float ExpireDuration = OrderRNG.FRandRange(ExpireTimeMinMax.X, ExpireTimeMinMax.Y);
 
 	float ExpireTime = GameState->TimeOfDay + ExpireDuration;
 	if (ExpireTime >= 1440.0f)
@@ -172,4 +178,27 @@ FOrder APizzaOrderManager::GenerateOrder(const FDistrict& District)
 		ExpireDuration, ExpireTime);
 
 	return FOrder(ChosenTopping, OrderCost, ChosenBlock, GameState->TimeOfDay, ExpireTime);
+}
+
+FString APizzaOrderManager::GeneratePizzaCode(float Distance)
+{
+	int32 StringLength = FMath::FloorToInt(Distance * DifficultyModifier);
+	
+	// TCHAR seems to be ASCII - 32 (skipping extra crap before actual text characters)
+	// http://en.cppreference.com/w/cpp/language/ascii
+	TArray<TCHAR> GarbledString;
+	GarbledString.Init(' ', StringLength + 1);
+	GarbledString[StringLength] = '\0';
+
+	for (int i = 0; i < StringLength; i++)
+	{
+		GarbledString[i] = ' ' + (PizzaCodeRNG.RandRange(97, 122) - 32);
+	}	
+
+	FString Output = GarbledString.GetData();
+	
+	UE_LOG(LogTemp, Log, TEXT("Generating random string: %s"),
+		*Output);
+	
+	return Output;
 }

@@ -28,8 +28,10 @@ private:
 
 	float NextOrderGenerationCall = 0.0f;
 
-	int32 Seed = 0; // TODO Make this public UProperty
-	FRandomStream RNG;
+	int32 OrderSeed = 0; // TODO Make this public UProperty
+	int32 PizzaSeed = 0;
+	FRandomStream OrderRNG;
+	FRandomStream PizzaCodeRNG;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -55,9 +57,24 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Orders")
 		FOrder GenerateOrder(const FDistrict& District);
 
+	/**
+	 * Generates a randomly long string of garbage whose length depends on
+	 *   the distance the code has to travel.
+	 * TODO Also have the different node toppings affect the character set -
+	 *   cheese is just [a-z], pepperoni is [a-z][A-Z], sausage is 
+	 *   [a-z]/!@#$%^&*(), pineapple is !@#$%^&*()/[0-9]...
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Orders")
+		FString GeneratePizzaCode(float Distance);
+
 	// Assigned by GameState when it spawns us
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
 		class APizzaGameState* GameState;
+
+	// Generated pizza code is Floor(DifficultyMod * Distance) characters
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders",
+		META = (ClampMin = 0.0f, UIMax = 20.0f))
+		float DifficultyModifier = 1.0f;
 
 	// How often (in game minutes) will we call the function that decides
 	//   whether to spawn an order
