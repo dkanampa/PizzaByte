@@ -15,6 +15,11 @@ APizzaOrderManager::APizzaOrderManager()
 	ToppingCosts.Add(EPizzaTopping::Pepperoni, 12);
 	ToppingCosts.Add(EPizzaTopping::Sausage,   12);
 	ToppingCosts.Add(EPizzaTopping::Pineapple, 14);
+
+	ToppingCodeCharacterSets.Add(EPizzaTopping::Cheese,    FCharsetFlags(true,  false, false, false));
+	ToppingCodeCharacterSets.Add(EPizzaTopping::Pepperoni, FCharsetFlags(true,  true,  false, false));
+	ToppingCodeCharacterSets.Add(EPizzaTopping::Sausage,   FCharsetFlags(true,  true,  true,  false));
+	ToppingCodeCharacterSets.Add(EPizzaTopping::Pineapple, FCharsetFlags(true,  false, true,  true));
 }
 
 void APizzaOrderManager::BeginPlay()
@@ -28,10 +33,6 @@ void APizzaOrderManager::BeginPlay()
 
 	OpenOrders.Reserve(32);
 
-	for (int i = 0; i < 8; i++)
-	{
-		GeneratePizzaCode(FMath::FRandRange(10.0f, 32.0f));
-	}
 }
 
 void APizzaOrderManager::Tick(float DeltaTime)
@@ -263,28 +264,92 @@ void APizzaOrderManager::GenerateCharacterSets()
 	*/
 }
 
-FString APizzaOrderManager::GeneratePizzaCode(float Distance)
+FString APizzaOrderManager::GeneratePizzaCode(float Distance, TArray<APizzaNode*> Nodes)
 {
 	int32 StringLength = FMath::FloorToInt(Distance * DifficultyModifier);
 	
-	// TCHAR seems to be ASCII - 32 (skipping extra crap before actual text characters)
-	// http://en.cppreference.com/w/cpp/language/ascii
+	// TODO: Learn Bitmasks so I don't have to do this
+	FCharsetFlags SumFlags;
+	for (APizzaNode* Node : Nodes)
+	{
+		FCharsetFlags* CharacterSets = ToppingCodeCharacterSets.Find(Node->Topping);
+		if (CharacterSets != nullptr)
+		{
+			SumFlags.Lowercase = SumFlags.Lowercase || CharacterSets->Lowercase;
+			SumFlags.Uppercase = SumFlags.Uppercase || CharacterSets->Uppercase;
+			SumFlags.Numbers = SumFlags.Numbers || CharacterSets->Numbers;
+			SumFlags.Special = SumFlags.Special || CharacterSets->Special;
+		}
+	}
+
+	TArray<TCHAR> CharacterSet;
+
+	FString UsedSets = "";
+
+	if (SumFlags.Lowercase) {
+		CharacterSet.Append(CharSetLowercase);
+		UsedSets.Append("Lowercase, ");
+	}
+
+	if (SumFlags.Uppercase) {
+		CharacterSet.Append(CharSetUppercase);
+		UsedSets.Append("Uppercase, ");
+	}
+
+	if (SumFlags.Numbers) {
+		CharacterSet.Append(CharSetNumeric);
+		UsedSets.Append("Numbers, ");
+	}
+
+	if (SumFlags.Special) {
+		CharacterSet.Append(CharSetSpecial);
+		UsedSets.Append("Special");
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Generating random string %d characters long using the following character sets: %s"),
+		StringLength, *UsedSets);
+
 	TArray<TCHAR> GarbledString;
 	GarbledString.Init(' ', StringLength + 1);
-	GarbledString.Init(' ', 126 - 32);
 	GarbledString[StringLength] = '\0';
 
-	
 
 	for (int i = 0; i < StringLength; i++)
 	{
-		GarbledString[i] = ' ' + (PizzaCodeRNG.RandRange(97, 122) - 32);
+		GarbledString[i] = UsefulFunctions::RandomElementInArray(CharacterSet, &PizzaCodeRNG);
 	}	
 
 	FString Output = GarbledString.GetData();
 	
-	UE_LOG(LogTemp, Log, TEXT("Generating random string: %s"),
+	UE_LOG(LogTemp, Log, TEXT("Generated string: %s"),
 		*Output);
 	
 	return Output;
+}
+
+void APizzaOrderManager::TestCodeGeneration()
+{
+	APizzaNode* Cheese = GetWorld()->SpawnActor<APizzaNode>();
+	Cheese->Topping = EPizzaTopping::Cheese;
+	APizzaNode* Pepperoni = GetWorld()->SpawnActor<APizzaNode>();
+	Pepperoni->Topping = EPizzaTopping::Pepperoni;
+	APizzaNode* Sausage = GetWorld()->SpawnActor<APizzaNode>();
+	Sausage->Topping = EPizzaTopping::Sausage;
+	APizzaNode* Pineapple = GetWorld()->SpawnActor<APizzaNode>();
+	Pineapple->Topping = EPizzaTopping::Pineapple;
+
+	for (int i = 0; i < 8; i++)
+	{
+		TArray<APizzaNode*> Nodes;
+		Nodes.Add(Cheese);
+
+		if (FMath::RandBool())
+			Nodes.Add(Pepperoni);
+		if (FMath::RandBool())
+			Nodes.Add(Sausage);
+		if (FMath::RandBool())
+			Nodes.Add(Pineapple);
+
+		GeneratePizzaCode(FMath::FRandRange(10.0f, 32.0f), Nodes);
+	}
 }
