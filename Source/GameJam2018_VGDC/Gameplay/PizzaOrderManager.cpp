@@ -31,8 +31,6 @@ void APizzaOrderManager::BeginPlay()
 
 	GenerateCharacterSets();
 
-
-
 	OrderRNG = FRandomStream(FMath::RandRange(0, 100));
 	PizzaCodeRNG = FRandomStream(FMath::RandRange(0, 100));
 
@@ -56,14 +54,13 @@ void APizzaOrderManager::Tick(float DeltaTime)
 		}
 	}
 
-	if (GameState->TimeOfDay >= NextOrderGenerationCall && 
-		GameState->TimeOfDay + OrderGenerationFrequency < 1440.0f)
+	NextOrderDeltaTime -= GameState->GetScaledTime(DeltaTime);
+
+	if (NextOrderDeltaTime <= 0.0f)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Recalculating orders..."));
 		GenerateNewOrders();
-		NextOrderGenerationCall = GameState->TimeOfDay + OrderGenerationFrequency;
-		if (NextOrderGenerationCall >= 1440.0f)
-			NextOrderGenerationCall -= 1440.0f;
+		NextOrderDeltaTime = OrderGenerationFrequency;
 	}
 
 	// Expire old orders
@@ -90,6 +87,12 @@ void APizzaOrderManager::Tick(float DeltaTime)
 
 void APizzaOrderManager::GenerateNewOrders()
 {
+	if (Districts.Num() == 0) {
+		UE_LOG(LogTemp, Error, TEXT("GenerateOrders called, but districts array is empty! "
+			"Orders cannot be generated without districts to be spawned in."));
+		return;
+	}
+
 	// TODO: Only query districts that player's have towers in
 	for (FDistrict& District : Districts)
 	{
@@ -354,29 +357,29 @@ FString APizzaOrderManager::GeneratePizzaCode(float Distance, TArray<APizzaNode*
 	return Output;
 }
 
-void APizzaOrderManager::TestCodeGeneration()
-{
-	APizzaNode* Cheese = GetWorld()->SpawnActor<APizzaNode>();
-	Cheese->Topping = EPizzaTopping::Cheese;
-	APizzaNode* Pepperoni = GetWorld()->SpawnActor<APizzaNode>();
-	Pepperoni->Topping = EPizzaTopping::Pepperoni;
-	APizzaNode* Sausage = GetWorld()->SpawnActor<APizzaNode>();
-	Sausage->Topping = EPizzaTopping::Sausage;
-	APizzaNode* Pineapple = GetWorld()->SpawnActor<APizzaNode>();
-	Pineapple->Topping = EPizzaTopping::Pineapple;
-
-	for (int i = 0; i < 8; i++)
-	{
-		TArray<APizzaNode*> Nodes;
-		Nodes.Add(Cheese);
-
-		if (FMath::RandBool())
-			Nodes.Add(Pepperoni);
-		if (FMath::RandBool())
-			Nodes.Add(Sausage);
-		if (FMath::RandBool())
-			Nodes.Add(Pineapple);
-
-		GeneratePizzaCode(FMath::FRandRange(10.0f, 32.0f), Nodes);
-	}
-}
+//void APizzaOrderManager::TestCodeGeneration()
+//{
+//	APizzaNode* Cheese = GetWorld()->SpawnActor<APizzaNode>();
+//	Cheese->Topping = EPizzaTopping::Cheese;
+//	APizzaNode* Pepperoni = GetWorld()->SpawnActor<APizzaNode>();
+//	Pepperoni->Topping = EPizzaTopping::Pepperoni;
+//	APizzaNode* Sausage = GetWorld()->SpawnActor<APizzaNode>();
+//	Sausage->Topping = EPizzaTopping::Sausage;
+//	APizzaNode* Pineapple = GetWorld()->SpawnActor<APizzaNode>();
+//	Pineapple->Topping = EPizzaTopping::Pineapple;
+//
+//	for (int i = 0; i < 8; i++)
+//	{
+//		TArray<APizzaNode*> Nodes;
+//		Nodes.Add(Cheese);
+//
+//		if (FMath::RandBool())
+//			Nodes.Add(Pepperoni);
+//		if (FMath::RandBool())
+//			Nodes.Add(Sausage);
+//		if (FMath::RandBool())
+//			Nodes.Add(Pineapple);
+//
+//		GeneratePizzaCode(FMath::FRandRange(10.0f, 32.0f), Nodes);
+//	}
+//}

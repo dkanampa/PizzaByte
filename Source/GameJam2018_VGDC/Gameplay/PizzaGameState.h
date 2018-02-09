@@ -63,36 +63,9 @@ public:
 	APizzaGameState();
 	virtual void Tick(float DeltaTime) override;
 
-	// Handles minute/day/month incrementation
-	// Returns in-game time passed this update
-	UFUNCTION(BlueprintCallable, Category = "Time")
-		float UpdateGameTime(float DeltaTime);
-
-	UFUNCTION(BlueprintCallable, Category = "Time")
-		bool IsWeekend();
-
-	// Assume's PeriodOfDayTimes is sorted
-	UFUNCTION(BlueprintCallable, Category = "Time")
-		EPeriodOfDay GetPeriodOfDay();
-
-	// Bills players for upkeep
-	UFUNCTION(BlueprintCallable, Category = "Time|Helper Functions")
-		void OnNewMonth();	
-
-	// Assume's Seasons map is sorted
-	UFUNCTION(BlueprintCallable, Category = "Time")
-		ESeason GetSeason();
-
-	UFUNCTION(BlueprintCallable, Category = "Fund Management")
-		void UpdatePlayerBankruptcy(APizzaPlayer* Player, 
-			bool EnteringBankruptcy = true);
-
-	UFUNCTION(BlueprintCallable, Category = "Fund Management")
-		void UpdateBankruptPlayers(float DeltaGameTime);
-
-	// Mainly for debugging
-	UFUNCTION(BlueprintCallable, Category = "Time")
-		FString GetTimestamp(bool IncludeTimeOfDay = true);
+	/// ////////////////////////////////////////////////////////////////////// ///
+	/// /// Management /////////////////////////////////////////////////////// ///
+	/// ////////////////////////////////////////////////////////////////////// ///
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Management")
 		TSubclassOf<APizzaOrderManager> OrderManagerClass;
@@ -109,6 +82,43 @@ public:
 	//   game
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Management")
 		TArray<APizzaPlayer*> Players;
+
+	/// ////////////////////////////////////////////////////////////////////// ///
+	/// /// Time ///////////////////////////////////////////////////////////// ///
+	/// ////////////////////////////////////////////////////////////////////// ///
+
+	// Handles minute/day/month incrementation given some unscaled change in time
+	//   (e.g. DeltaTime in Tick)
+	// @param  DeltaTime  (Unscaled) time since last update - c.f. sim "step" size
+	// @return In-game   time passed this update
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		float UpdateGameTime(float DeltaTime);
+
+	// Applies TimeSpeed and whatever other factors we may add to a given 
+	//   DeltaTime - e.g. when finding in-game time in Tick
+	// This is called in UpdateGameTime
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		float GetScaledTime(float UnscaledTime);
+
+	// Function usually only called when UpdateGameTime detects a new month
+	// Currently just bills players for upkeep
+	UFUNCTION(BlueprintCallable, Category = "Time|Helper Functions")
+		void OnNewMonth();
+
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		bool IsWeekend();
+
+	// Assumes PeriodOfDayTimes is sorted
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		EPeriodOfDay GetPeriodOfDay();
+
+	// Assumes Seasons map is sorted
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		ESeason GetSeason();
+
+	// Mainly for debugging
+	UFUNCTION(BlueprintCallable, Category = "Time")
+		FString GetTimestamp(bool IncludeTimeOfDay = true);
 
 	// In minutes; loops back to 0 at 1440.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time",
@@ -174,6 +184,17 @@ public:
 	// Make sure it's in order!
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Time|Parameters")
 		TMap<ESeason, uint8> Seasons;
+
+	/// ////////////////////////////////////////////////////////////////////// ///
+	/// /// Money //////////////////////////////////////////////////////////// ///
+	/// ////////////////////////////////////////////////////////////////////// ///
+
+	UFUNCTION(BlueprintCallable, Category = "Fund Management")
+		void UpdatePlayerBankruptcy(APizzaPlayer* Player,
+			bool EnteringBankruptcy = true);
+
+	UFUNCTION(BlueprintCallable, Category = "Fund Management")
+		void UpdateBankruptPlayers(float DeltaGameTime);
 
 	// { Player : Bankruptcy Duration }
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Fund Management")

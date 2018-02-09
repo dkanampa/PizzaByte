@@ -140,7 +140,7 @@ void APizzaGameState::Tick(float DeltaTime)
 
 float APizzaGameState::UpdateGameTime(float DeltaTime)
 {
-	TimeOfDay += DeltaTime * TimeSpeed;
+	TimeOfDay += GetScaledTime(DeltaTime);
 
 	if (TickPreviousPeriodOfDay != GetPeriodOfDay())
 	{
@@ -192,6 +192,12 @@ float APizzaGameState::UpdateGameTime(float DeltaTime)
 	}
 
 	return DeltaTime * TimeSpeed;
+}
+
+
+float APizzaGameState::GetScaledTime(float UnscaledTime)
+{
+	return UnscaledTime * TimeSpeed;
 }
 
 bool APizzaGameState::IsWeekend()
