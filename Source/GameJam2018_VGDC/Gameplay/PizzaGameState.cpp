@@ -194,10 +194,47 @@ float APizzaGameState::UpdateGameTime(float DeltaTime)
 	return DeltaTime * TimeSpeed;
 }
 
-
 float APizzaGameState::GetScaledTime(float UnscaledTime)
 {
 	return UnscaledTime * TimeSpeed;
+}
+
+FString APizzaGameState::GetTimeAsString(float Time, bool ShowSeconds, bool TwentyFourHourFormat) {
+	
+	// Get hours from the given minutes input
+	int Hours = FMath::FloorToInt(Time / 60.0f);
+	
+	// Convert 15:00 to 3:00 PM if necessary
+	bool PM = Hours >= 12;
+	if (PM && !TwentyFourHourFormat)
+		Hours -= 12;
+
+	// Special Case: 12:00 AM on a non-24-hour format
+	if (Hours == 0 && !TwentyFourHourFormat)
+		Hours = 12;
+
+	// Modulo operator is so rad
+	int Minutes = (int)Time % 60; 
+
+	// Again, modulo is dope
+	int Seconds = FMath::Fmod(Time, 1.0) * 60.0f; 
+
+	if (TwentyFourHourFormat)
+	{
+		if (ShowSeconds)
+			return FString::Printf(TEXT("%d:%02d:%02d"), Hours, Minutes, Seconds);
+		else
+			return FString::Printf(TEXT("%d:%02d:%02d"), Hours, Minutes, Seconds);
+	}
+	else
+	{
+		if (ShowSeconds)
+			return FString::Printf(TEXT("%d:%02d:%02d %s"), Hours, Minutes, Seconds,
+				PM ? TEXT("PM") : TEXT("AM"));
+		else
+			return FString::Printf(TEXT("%d:%02d %s"), Hours, Minutes, 
+				PM ? TEXT("PM") : TEXT("AM"));
+	}
 }
 
 bool APizzaGameState::IsWeekend()

@@ -100,6 +100,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Time")
 		float GetScaledTime(float UnscaledTime);
 
+	// Converts a time in minutes (i.e. what we use internally) to a string in
+	//   the format "7:13PM" (or "19:13" if TwentyFourHourFormat)
+	// @param Time Time in minutes (i.e. 720.0 is noon, 1440.0 is midnight)
+	// @param ShowSeconds Whether to display seconds as well (Format is H:MM:SS)
+	// @param TwentyFourHourFormat Whether to print with AM/PM or 24-hour clock
+	// @return String in the format "7:13PM" or "19:13" 
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Time")
+		static FString GetTimeAsString(float Time, bool ShowSeconds = false,
+			bool TwentyFourHourFormat = false);
+
 	// Function usually only called when UpdateGameTime detects a new month
 	// Currently just bills players for upkeep
 	UFUNCTION(BlueprintCallable, Category = "Time|Helper Functions")
