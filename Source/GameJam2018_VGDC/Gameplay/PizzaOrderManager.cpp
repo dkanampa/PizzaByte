@@ -314,30 +314,39 @@ FString APizzaOrderManager::GeneratePizzaCode(float Distance, TArray<APizzaNode*
 
 	TArray<TCHAR> CharacterSet;
 
-	FString UsedSets = "";
+	FString DebugUsedSets = "";
 
 	if (SumFlags.Lowercase) {
 		CharacterSet.Append(CharSetLowercase);
-		UsedSets.Append("Lowercase, ");
+		DebugUsedSets.Append("Lowercase, ");
 	}
 
 	if (SumFlags.Uppercase) {
 		CharacterSet.Append(CharSetUppercase);
-		UsedSets.Append("Uppercase, ");
+		DebugUsedSets.Append("Uppercase, ");
 	}
 
 	if (SumFlags.Numbers) {
 		CharacterSet.Append(CharSetNumeric);
-		UsedSets.Append("Numbers, ");
+		DebugUsedSets.Append("Numbers, ");
 	}
 
 	if (SumFlags.Special) {
 		CharacterSet.Append(CharSetSpecial);
-		UsedSets.Append("Special");
+		DebugUsedSets.Append("Special");
+	}
+
+	if (CharacterSet.Num() == 0) {
+		UE_LOG(LogTemp, Error, TEXT("Empty character set for code generation! "
+			"Character Flags: %d%d%d%d; Nodes.Num(): %d"), 
+			SumFlags.Lowercase, SumFlags.Uppercase, SumFlags.Numbers, SumFlags.Special,
+			Nodes.Num());
+		CharacterSet.Append(CharSetLowercase);
+		DebugUsedSets.Append("Lowercase, ");
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Generating random string %d characters long using the following character sets: %s"),
-		StringLength, *UsedSets);
+		StringLength, *DebugUsedSets);
 
 	TArray<TCHAR> GarbledString;
 	GarbledString.Init(' ', StringLength + 1);
