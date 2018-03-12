@@ -21,9 +21,35 @@ UENUM(BlueprintType)
 enum class EActionMode : uint8
 {
 	Disabled,
+	OrderSelection,
 	OrderChaining,
 	Placing,
 	Selling
+};
+
+/**
+ * For neatly and extensibly providing selection presets for action modes
+ */
+USTRUCT(BlueprintType)
+struct FActionModePreset
+{
+	GENERATED_USTRUCT_BODY();
+
+	FActionModePreset() {};
+
+	FActionModePreset(EActionMode _Mode) : Mode(_Mode) {};
+
+	FActionModePreset(EActionMode _Mode,
+		TArray<TSubclassOf<AActor>> _ValidSelectables)
+		: Mode(_Mode), ValidSelectables(_ValidSelectables) {};
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		EActionMode Mode;
+
+	// List of things we can or can not select in the given ActionMode
+	// Selecting someting not in this list will be ignored
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		TArray<TSubclassOf<AActor>> ValidSelectables;
 };
 
 UCLASS()
@@ -55,6 +81,19 @@ public:
 	bool PurchaseTowerWithFunds(FBlock* ToPurchase);
 
 	int32 GetOwnedNodesSizeInDistrict(FDistrict* District);
+
+	/**
+	 * Sets the action mode, clearing selections et al.
+	 * @return Whether changing new action mode was successful (i.e. presets found)
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Input")
+		bool UpdateActionMode(EActionMode NewMode);
+
+	/**
+	 * In case we do funky stuff with selections and we want to keep it neat
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Input")
+		void ClearSelections();
 
 	/**
 	 * Makes sure that the path to the order is valid:
@@ -113,8 +152,18 @@ public:
 		TArray<FDistrict> PermittedDistricts;
 
 	// Whether we're selecting node's for an order, buying nodes, etc.
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Input")
+	// Set by UpdateActionMode
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Input")
 		EActionMode ActionMode = EActionMode::Disabled;
+
+	// List of things we can or can not select in our current ActionMode
+	// Selecting someting not listed here will be ignored
+	// Set by UpdateActionMode
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Input")
+		TArray<TSubclassOf<AActor>> ValidSelectables;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Input")
+		TArray<FActionModePreset> SelectablePresets;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Input")
 		TArray<APizzaNode*> SelectedNodes;

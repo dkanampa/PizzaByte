@@ -3,6 +3,7 @@
 #include "PizzaPlayer.h"
 #include "PizzaGameState.h"
 #include "PizzaOrderManager.h"
+#include "../GenericUsefulFunctions.h"
 
 // Sets default values
 APizzaPlayer::APizzaPlayer()
@@ -10,12 +11,37 @@ APizzaPlayer::APizzaPlayer()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Funds = 0;
+
+	/**
+	 * Populate default presets
+	 */
+	TArray<TSubclassOf<AActor>> PresetDisabled; // Empty = nothing selectable
+	SelectablePresets.Add(FActionModePreset(EActionMode::Disabled, PresetDisabled));
+
+	TArray<TSubclassOf<AActor>> PresetOrderSelection;
+	PresetOrderSelection.Add(AOrderPopup::StaticClass());
+	SelectablePresets.Add(FActionModePreset(EActionMode::OrderSelection, PresetOrderSelection));
+
+	TArray<TSubclassOf<AActor>> PresetOrderChaining; 
+	PresetOrderChaining.Add(APizzaNode::StaticClass());
+	SelectablePresets.Add(FActionModePreset(EActionMode::OrderChaining, PresetOrderChaining));
+
+	TArray<TSubclassOf<AActor>> PresetPlacing; 
+	PresetOrderChaining.Add(APizzaNode::StaticClass());
+	SelectablePresets.Add(FActionModePreset(EActionMode::Placing, PresetPlacing));
+
+	TArray<TSubclassOf<AActor>> PresetSelling; 
+	PresetOrderChaining.Add(APizzaNode::StaticClass());
+	SelectablePresets.Add(FActionModePreset(EActionMode::Selling, PresetSelling));
 }
 
 // Called when the game starts or when spawned
 void APizzaPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Makes sure ValidSelectables is right, too
+	UpdateActionMode(EActionMode::OrderSelection);
 }
 
 // Called every frame
@@ -187,4 +213,32 @@ bool APizzaPlayer::AssertHasGameState()
 	UE_CLOG(GameState == nullptr, LogTemp, Error,
 		TEXT("AssertHasGameState failed for Player %s"), *GetName());
 	return GameState != nullptr;
+}
+
+bool APizzaPlayer::UpdateActionMode(EActionMode NewMode)
+{
+	ClearSelections();
+
+	// Find preset
+	for (const FActionModePreset& Preset : SelectablePresets)
+	{
+		if (Preset.Mode == NewMode)
+		{
+			ValidSelectables = Preset.ValidSelectables;
+			ActionMode = NewMode;
+			return true;
+		}
+	}
+
+	// No preset found; complain and disble selection
+	ValidSelectables.Empty();
+	UE_LOG(LogTemp, Error, TEXT("No preset available for %s"),
+		*UsefulFunctions::EnumToString(FString("EActionMode"), NewMode));
+	return false;
+}
+
+void APizzaPlayer::ClearSelections()
+{
+	SelectedNodes.Empty();
+	SelectedPopup = nullptr;
 }
