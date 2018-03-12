@@ -96,16 +96,21 @@ void APizzaPlayer::StartSelect()
 		}
 		else
 		{
+			// Selectable clicked: perform necessary behavior
 			// This feels a bit ugly but I can't think of any better way.
 			// Feel free to refactor.
 
 			if (AOrderPopup* OrderPopup = Cast<AOrderPopup>(HitSelectable))
 			{
-				// Todo...
+				// Clear selection
+				SelectedPopup->IsSelected = false;
+				SelectedPopup = OrderPopup;
+				OrderPopup->IsSelected = true;
 			}
 			else if (APizzaNode* PizzaNode = Cast<APizzaNode>(HitSelectable))
 			{
-				// Todo...
+				PizzaNode->IsSelected = true;
+				SelectedNodes.AddUnique(PizzaNode);
 			}
 			else
 			{
@@ -305,6 +310,19 @@ bool APizzaPlayer::UpdateActionMode(EActionMode NewMode)
 
 void APizzaPlayer::ClearSelections()
 {
-	SelectedNodes.Empty();
+	// Clear selected nodes
+	for (int i = SelectedNodes.Num() - 1; i >= 0; i--)
+	{
+		SelectedNodes[i]->IsSelected = false;
+		SelectedNodes.RemoveAt(i, 1, false); // Don't bother shrinking
+	}
+
+	// Clear selected popup
+	SelectedPopup->IsSelected = false;
 	SelectedPopup = nullptr;
+}
+
+void APizzaPlayer::OnSelectedPopupChanged_Implementation()
+{
+	
 }

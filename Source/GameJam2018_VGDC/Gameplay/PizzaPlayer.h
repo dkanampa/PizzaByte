@@ -79,6 +79,16 @@ public:
 
 	bool PurchaseDistrictPermit(FDistrict* District);
 
+	/**
+	 * Called whenever our current SelectedPopup changes - usually by clicking
+	 *   another popup
+	 * Note that the new popup will have already been notified that it is selected
+	 *   selected - this function is more intended for spawning UI
+	 * @return New popup selected
+	 */
+	UFUNCTION(BlueprintNativeEvent, Category = "Orders")
+		void OnSelectedPopupChanged();
+
 	UFUNCTION(BlueprintCallable, Category = "Orders")
 		bool CheckOrder(FString Response);
 
