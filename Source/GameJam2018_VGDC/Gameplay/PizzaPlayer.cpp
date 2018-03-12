@@ -3,6 +3,7 @@
 #include "PizzaPlayer.h"
 #include "PizzaGameState.h"
 #include "PizzaOrderManager.h"
+#include "PizzaController.h"
 #include "../GenericUsefulFunctions.h"
 
 // Sets default values
@@ -27,11 +28,11 @@ APizzaPlayer::APizzaPlayer()
 	SelectablePresets.Add(FActionModePreset(EActionMode::OrderChaining, PresetOrderChaining));
 
 	TArray<TSubclassOf<AActor>> PresetPlacing; 
-	PresetOrderChaining.Add(APizzaNode::StaticClass());
+	PresetPlacing.Add(APizzaNode::StaticClass());
 	SelectablePresets.Add(FActionModePreset(EActionMode::Placing, PresetPlacing));
 
 	TArray<TSubclassOf<AActor>> PresetSelling; 
-	PresetOrderChaining.Add(APizzaNode::StaticClass());
+	PresetSelling.Add(APizzaNode::StaticClass());
 	SelectablePresets.Add(FActionModePreset(EActionMode::Selling, PresetSelling));
 }
 
@@ -42,6 +43,13 @@ void APizzaPlayer::BeginPlay()
 
 	// Makes sure ValidSelectables is right, too
 	UpdateActionMode(EActionMode::OrderSelection);
+
+	PizzaController = Cast<APizzaController>(GetController());
+	if (PizzaController == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PizzaPlayer controller is not a subclass of PizzaController! Is '%s'"),
+			*GetController()->GetClass()->GetName());
+	}
 }
 
 // Called every frame
@@ -54,8 +62,66 @@ void APizzaPlayer::Tick(float DeltaTime)
 void APizzaPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	InputComponent->BindAction("Select", IE_Pressed, this, &APizzaPlayer::StartSelect);
+	InputComponent->BindAction("Select", IE_Released, this, &APizzaPlayer::StopSelect);
 
 }
+
+void APizzaPlayer::StartSelect()
+{
+	if (PizzaController == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Select button clicked but no pizza controller available!"));
+		return;
+	}
+
+	FHitResult HitResult;
+	if (PizzaController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, 
+		true, HitResult))
+	{
+		AActor* HitSelectable = nullptr;
+
+		// Make sure thing is selectable:
+		for (const TSubclassOf<AActor>& Selectable : ValidSelectables)
+		{
+			if (HitResult.GetActor()->GetClass()->IsChildOf(Selectable.Get()))
+				HitSelectable = HitResult.GetActor();
+		}
+
+		if (HitSelectable == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Clicked on un-selectable: '%s' (Mode: %s)"),
+				*HitResult.GetActor()->GetName(), *UsefulFunctions::EnumToString(FString("EActionMode"), ActionMode));
+		}
+		else
+		{
+			// This feels a bit ugly but I can't think of any better way.
+			// Feel free to refactor.
+
+			if (AOrderPopup* OrderPopup = Cast<AOrderPopup>(HitSelectable))
+			{
+				// Todo...
+			}
+			else if (APizzaNode* PizzaNode = Cast<APizzaNode>(HitSelectable))
+			{
+				// Todo...
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Selection behavior is undefined for '%s'"),
+					*HitSelectable->GetClass()->GetName());
+			}
+		}
+	}
+}
+
+void APizzaPlayer::StopSelect()
+{
+
+}
+
+
 
 // Purchases a tower in the given sector. A player can only buy a tower
 // if they own that sector's permit

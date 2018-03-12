@@ -16,6 +16,7 @@
 class APizzaGameState;
 class APizzaOrderManager;
 class ALevelManager;
+class APizzaController;
 
 UENUM(BlueprintType)
 enum class EActionMode : uint8
@@ -69,6 +70,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable, Category = "Input")
+		void StartSelect();
+	UFUNCTION(BlueprintCallable, Category = "Input")
+		void StopSelect();
+
 	bool PurchaseTowerInSector(FSector* Sector, FBlock* ToPurchase, EPizzaTopping Topping);
 
 	bool PurchaseDistrictPermit(FDistrict* District);
@@ -121,6 +127,10 @@ public:
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Management")
 		void OnBankruptcyMaxed();
+
+	// Assigned on BeginPlay
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "References")
+		APizzaController* PizzaController;
 
 	// Assigned by GameState immediately after begin play
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "References")
