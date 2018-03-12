@@ -17,6 +17,15 @@ class APizzaGameState;
 class APizzaOrderManager;
 class ALevelManager;
 
+UENUM(BlueprintType)
+enum class EActionMode : uint8
+{
+	Disabled,
+	OrderChaining,
+	Placing,
+	Selling
+};
+
 UCLASS()
 class GAMEJAM2018_VGDC_API APizzaPlayer : public APawn
 {
@@ -71,19 +80,19 @@ public:
 	 * Called once our funds are negative for more than MaxBankruptcyTime
 	 *   minutes
 	 */
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Fund Management")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Management")
 		void OnBankruptcyMaxed();
 
 	// Assigned by GameState immediately after begin play
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "References")
 		APizzaGameState* GameState;
 
 	// Assigned by GameState immediately after begin play
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "References")
 		APizzaOrderManager* OrderManager;
 
 	// Assigned by GameState immediately after begin play
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "References")
 		ALevelManager* LevelManager;
 
 	// Maximum time (in-game minutes) the player can be bankrupt before loss
@@ -92,30 +101,34 @@ public:
 		float MaxBankruptcyTime = 2880.0f;
 
 	// Do not change manually! Use add/remove funds!
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
 		int32 Funds;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	// Read only on purpose; use functions to add/remove
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
 		TArray<APizzaNode*> Nodes;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	// Read only on purpose; use functions to add/remove
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Management")
 		TArray<FDistrict> PermittedDistricts;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	// Whether we're selecting node's for an order, buying nodes, etc.
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Input")
+		EActionMode ActionMode = EActionMode::Disabled;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Input")
 		TArray<APizzaNode*> SelectedNodes;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Input")
 		AOrderPopup* SelectedPopup;
 
-
-
 	// Max distance between last node and an order that we'll allow
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Input")
 		float MaxNodeOrderDistance = 500.0f;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
 		FOrder CurrentOrder;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Orders")
 		FString CurrentOrderCode = "";
 };
